@@ -48,6 +48,7 @@
   "OperationToast": {
     "signInSuccess": "Signed in successfully.",
     "signInFailed": "Failed to sign in.",
+    "signInUnauthorizedDomain": "This deployed domain is not authorized in Firebase Authentication.",
     "signOutSuccess": "Signed out successfully.",
     "signOutFailed": "Failed to sign out.",
     "profileSaved": "Profile saved.",

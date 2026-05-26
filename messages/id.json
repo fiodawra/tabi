@@ -48,6 +48,7 @@
   "OperationToast": {
     "signInSuccess": "Berhasil masuk.",
     "signInFailed": "Gagal masuk.",
+    "signInUnauthorizedDomain": "Domain deploy ini belum diizinkan di Firebase Authentication.",
     "signOutSuccess": "Berhasil keluar.",
     "signOutFailed": "Gagal keluar.",
     "profileSaved": "Profil berhasil disimpan.",

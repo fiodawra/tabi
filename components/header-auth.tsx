@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useAuth } from "@/stores/auth-store";
+import { AuthDomainError, useAuth } from "@/stores/auth-store";
 import { useTranslations } from "@/hooks/use-i18n";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -68,10 +68,16 @@ export function HeaderAuth() {
 
   async function handleSignIn() {
     try {
-      await signInWithGoogle();
-      toast.success(tToast("signInSuccess"));
-    } catch {
-      toast.error(tToast("signInFailed"));
+      const result = await signInWithGoogle();
+      if (result === "signed-in") {
+        toast.success(tToast("signInSuccess"));
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof AuthDomainError
+          ? tToast("signInUnauthorizedDomain")
+          : tToast("signInFailed"),
+      );
     }
   }
 
