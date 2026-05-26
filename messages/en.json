@@ -1,0 +1,105 @@
+{
+  "HomePage": {
+    "welcome": "Welcome to Tabi!",
+    "fyi": "FYI: \"Tabi\" is a Japanese word that means \"journey\" or \"travel.\" We chose this name because the app is all about helping you plan meaningful trips, keep your itinerary organized, and enjoy the whole adventure from start to finish."
+  },
+  "DashboardPage": {
+    "title": "Dashboard",
+    "description": "Manage incoming feedback from users.",
+    "loading": "Loading feedback...",
+    "empty": "No feedback yet.",
+    "status": "Status",
+    "submittedBy": "Submitted by: {name}",
+    "statusReviewed": "Reviewed",
+    "statusAccepted": "Accepted",
+    "statusRejected": "Rejected"
+  },
+  "FeedbackPage": {
+    "title": "Feedback",
+    "description": "Share your suggestion or issue with us.",
+    "fieldTitle": "Title",
+    "fieldDescription": "Description",
+    "fieldTitlePlaceholder": "Write feedback title",
+    "fieldDescriptionPlaceholder": "Write additional details (optional)",
+    "submit": "Send feedback",
+    "sending": "Sending..."
+  },
+  "ThemeToast": {
+    "updated": "Theme updated: {theme}",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "Theme": {
+    "toggleAriaLabel": "Toggle color mode"
+  },
+  "LocaleSwitcher": {
+    "ariaLabel": "Choose language",
+    "id": "ID",
+    "en": "EN",
+    "gaul": "GAUL :v"
+  },
+  "LocaleToast": {
+    "updated": "Language updated: {locale}",
+    "id": "Indonesian",
+    "en": "English",
+    "id-x-gaul": "Indonesian (Gaul)"
+  },
+  "OperationToast": {
+    "signInSuccess": "Signed in successfully.",
+    "signInFailed": "Failed to sign in.",
+    "signOutSuccess": "Signed out successfully.",
+    "signOutFailed": "Failed to sign out.",
+    "profileSaved": "Profile saved.",
+    "profileSaveFailed": "Failed to save profile.",
+    "feedbackSubmitSuccess": "Feedback sent successfully.",
+    "feedbackSubmitFailed": "Failed to send feedback.",
+    "feedbackStatusUpdateSuccess": "Feedback status updated.",
+    "feedbackStatusUpdateFailed": "Failed to update feedback status."
+  },
+  "HeaderSearch": {
+    "openAriaLabel": "Open search",
+    "button": "Search",
+    "group": {
+      "navigation": "Navigation",
+      "theme": "Theme",
+      "language": "Language"
+    },
+    "item": {
+      "goHome": "Go to home page",
+      "goDashboard": "Go to dashboard",
+      "goFeedback": "Go to feedback page",
+      "darkMode": "Dark mode",
+      "lightMode": "Light mode",
+      "systemMode": "System mode",
+      "switchToId": "Switch language to Indonesian",
+      "switchToEn": "Switch language to English",
+      "switchToGaul": "Switch language to Indonesian (Gaul)"
+    },
+    "dialog": {
+      "title": "Search Tabi",
+      "description": "Search for pages and actions",
+      "placeholder": "Type command or page...",
+      "empty": "No result found."
+    }
+  },
+  "Auth": {
+    "signInWithGoogle": "Sign in with Google",
+    "signOut": "Sign out",
+    "menuAriaLabel": "Open account menu",
+    "avatarAlt": "User avatar",
+    "level": "Level",
+    "admin": "Admin",
+    "member": "Member",
+    "name": "Name",
+    "bio": "Bio",
+    "namePlaceholder": "Enter your name",
+    "bioPlaceholder": "Tell us about yourself",
+    "editProfile": "Edit profile",
+    "feedback": "Feedback",
+    "dashboard": "Dashboard",
+    "save": "Save profile",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  }
+}

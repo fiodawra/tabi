@@ -1,0 +1,105 @@
+{
+  "HomePage": {
+    "welcome": "Selamat datang di Tabi!",
+    "fyi": "FYI: \"Tabi\" adalah kata dari bahasa Jepang yang berarti \"perjalanan\" atau \"travel.\" Nama ini dipilih karena aplikasi ini dibuat untuk membantu kamu merencanakan perjalanan yang bermakna, menyusun itinerary dengan rapi, dan menikmati pengalaman dari awal sampai akhir."
+  },
+  "DashboardPage": {
+    "title": "Dasbor",
+    "description": "Kelola feedback yang masuk dari pengguna.",
+    "loading": "Memuat feedback...",
+    "empty": "Belum ada feedback.",
+    "status": "Status",
+    "submittedBy": "Dikirim oleh: {name}",
+    "statusReviewed": "Ditinjau",
+    "statusAccepted": "Diterima",
+    "statusRejected": "Ditolak"
+  },
+  "FeedbackPage": {
+    "title": "Feedback",
+    "description": "Bagikan saran atau kendala kamu ke kami.",
+    "fieldTitle": "Judul",
+    "fieldDescription": "Deskripsi",
+    "fieldTitlePlaceholder": "Tulis judul feedback",
+    "fieldDescriptionPlaceholder": "Tulis detail tambahan (opsional)",
+    "submit": "Kirim feedback",
+    "sending": "Mengirim..."
+  },
+  "ThemeToast": {
+    "updated": "Tema diperbarui: {theme}",
+    "light": "Terang",
+    "dark": "Gelap",
+    "system": "Sistem"
+  },
+  "Theme": {
+    "toggleAriaLabel": "Ganti mode warna"
+  },
+  "LocaleSwitcher": {
+    "ariaLabel": "Pilih bahasa",
+    "id": "ID",
+    "en": "EN",
+    "gaul": "GAUL :v"
+  },
+  "LocaleToast": {
+    "updated": "Bahasa diperbarui: {locale}",
+    "id": "Indonesia",
+    "en": "Inggris",
+    "id-x-gaul": "Indonesia Gaul"
+  },
+  "OperationToast": {
+    "signInSuccess": "Berhasil masuk.",
+    "signInFailed": "Gagal masuk.",
+    "signOutSuccess": "Berhasil keluar.",
+    "signOutFailed": "Gagal keluar.",
+    "profileSaved": "Profil berhasil disimpan.",
+    "profileSaveFailed": "Gagal menyimpan profil.",
+    "feedbackSubmitSuccess": "Feedback berhasil dikirim.",
+    "feedbackSubmitFailed": "Gagal mengirim feedback.",
+    "feedbackStatusUpdateSuccess": "Status feedback berhasil diperbarui.",
+    "feedbackStatusUpdateFailed": "Gagal memperbarui status feedback."
+  },
+  "HeaderSearch": {
+    "openAriaLabel": "Buka pencarian",
+    "button": "Cari",
+    "group": {
+      "navigation": "Navigasi",
+      "theme": "Tema",
+      "language": "Bahasa"
+    },
+    "item": {
+      "goHome": "Buka halaman beranda",
+      "goDashboard": "Buka dasbor",
+      "goFeedback": "Buka halaman feedback",
+      "darkMode": "Mode gelap",
+      "lightMode": "Mode terang",
+      "systemMode": "Mode sistem",
+      "switchToId": "Ganti bahasa ke Indonesia",
+      "switchToEn": "Ganti bahasa ke Inggris",
+      "switchToGaul": "Ganti bahasa ke Indonesia Gaul"
+    },
+    "dialog": {
+      "title": "Cari di Tabi",
+      "description": "Cari halaman dan aksi",
+      "placeholder": "Ketik perintah atau halaman...",
+      "empty": "Tidak ada hasil."
+    }
+  },
+  "Auth": {
+    "signInWithGoogle": "Masuk dengan Google",
+    "signOut": "Keluar",
+    "menuAriaLabel": "Buka menu akun",
+    "avatarAlt": "Avatar pengguna",
+    "level": "Level",
+    "admin": "Admin",
+    "member": "Member",
+    "name": "Nama",
+    "bio": "Bio",
+    "namePlaceholder": "Masukkan nama kamu",
+    "bioPlaceholder": "Ceritakan tentang diri kamu",
+    "editProfile": "Edit profil",
+    "feedback": "Feedback",
+    "dashboard": "Dasbor",
+    "save": "Simpan profil",
+    "saving": "Menyimpan...",
+    "cancel": "Batal"
+  }
+}

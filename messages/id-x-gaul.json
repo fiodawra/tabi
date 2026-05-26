@@ -1,0 +1,105 @@
+{
+  "HomePage": {
+    "welcome": "Wih, welcome di Tabi :v",
+    "fyi": "FYI dikit: \"Tabi\" itu kata Jepang, artinya \"journey\" alias \"travel.\" Namanya dipake karena app ini fokus bantu lo nyusun trip yang niat, itinerary tetep rapih, dan vibes jalan-jalan dari awal sampe pulang tetep enak."
+  },
+  "DashboardPage": {
+    "title": "Dashboard Gaul",
+    "description": "Atur feedback yang masuk dari user di sini.",
+    "loading": "Lagi ngeload feedback...",
+    "empty": "Feedback masih kosong nih.",
+    "status": "Status",
+    "submittedBy": "Dikirim sama: {name}",
+    "statusReviewed": "Direview",
+    "statusAccepted": "Di-acc",
+    "statusRejected": "Ditolak"
+  },
+  "FeedbackPage": {
+    "title": "Feedback",
+    "description": "Kasih saran atau laporan kendala lo di sini.",
+    "fieldTitle": "Judul",
+    "fieldDescription": "Deskripsi",
+    "fieldTitlePlaceholder": "Tulis judul feedback lo",
+    "fieldDescriptionPlaceholder": "Tambah detailnya (opsional)",
+    "submit": "Kirim feedback",
+    "sending": "Lagi ngirim..."
+  },
+  "ThemeToast": {
+    "updated": "Tema di-switch jadi: {theme}",
+    "light": "Terang",
+    "dark": "Gelap",
+    "system": "Sistem"
+  },
+  "Theme": {
+    "toggleAriaLabel": "Ganti mode warna"
+  },
+  "LocaleSwitcher": {
+    "ariaLabel": "Pilih bahasa",
+    "id": "ID",
+    "en": "EN",
+    "gaul": "GAUL :v"
+  },
+  "LocaleToast": {
+    "updated": "Bahasa udah diganti: {locale}",
+    "id": "Indonesia",
+    "en": "Inggris",
+    "id-x-gaul": "Indonesia Gaul"
+  },
+  "OperationToast": {
+    "signInSuccess": "Login sukses.",
+    "signInFailed": "Login gagal.",
+    "signOutSuccess": "Keluar sukses.",
+    "signOutFailed": "Keluar gagal.",
+    "profileSaved": "Profil berhasil disimpen.",
+    "profileSaveFailed": "Gagal nyimpen profil.",
+    "feedbackSubmitSuccess": "Feedback berhasil kekirim.",
+    "feedbackSubmitFailed": "Gagal ngirim feedback.",
+    "feedbackStatusUpdateSuccess": "Status feedback berhasil diupdate.",
+    "feedbackStatusUpdateFailed": "Gagal update status feedback."
+  },
+  "HeaderSearch": {
+    "openAriaLabel": "Buka pencarian",
+    "button": "Cari",
+    "group": {
+      "navigation": "Navigasi",
+      "theme": "Tema",
+      "language": "Bahasa"
+    },
+    "item": {
+      "goHome": "Gas ke beranda",
+      "goDashboard": "Gas ke dashboard",
+      "goFeedback": "Gas ke halaman feedback",
+      "darkMode": "Mode gelap",
+      "lightMode": "Mode terang",
+      "systemMode": "Mode sistem",
+      "switchToId": "Switch ke bahasa Indonesia",
+      "switchToEn": "Switch ke bahasa Inggris",
+      "switchToGaul": "Switch ke bahasa gaul"
+    },
+    "dialog": {
+      "title": "Cari di Tabi",
+      "description": "Cari halaman sama aksi",
+      "placeholder": "Ketik command atau halaman...",
+      "empty": "Ga ada hasil, bro."
+    }
+  },
+  "Auth": {
+    "signInWithGoogle": "Login pake Google",
+    "signOut": "Keluar dulu",
+    "menuAriaLabel": "Buka menu akun",
+    "avatarAlt": "Avatar user",
+    "level": "Level",
+    "admin": "Admin",
+    "member": "Member",
+    "name": "Nama",
+    "bio": "Bio",
+    "namePlaceholder": "Isi nama lo",
+    "bioPlaceholder": "Ceritain dikit soal lo",
+    "editProfile": "Edit profil",
+    "feedback": "Feedback",
+    "dashboard": "Dashboard",
+    "save": "Simpan profil",
+    "saving": "Lagi nyimpen...",
+    "cancel": "Batal"
+  }
+}
