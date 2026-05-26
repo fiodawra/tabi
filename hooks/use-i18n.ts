@@ -6,8 +6,10 @@ import gaulMessages from "@/messages/id-x-gaul.json";
 import { DEFAULT_LOCALE, type AppLocale } from "@/i18n/locales";
 import { useLocaleStore } from "@/stores/locale-store";
 
-type MessageValue = string | Record<string, MessageValue>;
-type MessageMap = Record<string, MessageValue>;
+type MessageValue = string | MessageMap;
+interface MessageMap {
+  [key: string]: MessageValue;
+}
 
 const MESSAGES: Record<AppLocale, MessageMap> = {
   en: enMessages,
