@@ -4,6 +4,7 @@
 .tabi-itinerary-calendar {
   --itinerary-time-slot-height: 1.75rem;
   --itinerary-timeslots-per-hour: 2;
+  --itinerary-time-gutter-width: 4.75rem;
   --rbc-border: color-mix(in oklch, var(--border) 86%, transparent);
   --rbc-muted: color-mix(in oklch, var(--muted) 72%, transparent);
   --rbc-selected: color-mix(in oklch, var(--primary) 18%, transparent);
@@ -53,6 +54,29 @@
 
 .tabi-itinerary-calendar .rbc-time-content {
   flex: none;
+}
+
+.tabi-itinerary-calendar .rbc-time-header-gutter,
+.tabi-itinerary-calendar .rbc-time-gutter {
+  flex: 0 0 var(--itinerary-time-gutter-width);
+  /* biome-ignore lint/complexity/noImportantStyles: React Big Calendar writes the header gutter width inline. */
+  width: var(--itinerary-time-gutter-width) !important;
+  /* biome-ignore lint/complexity/noImportantStyles: React Big Calendar writes the header gutter width inline. */
+  min-width: var(--itinerary-time-gutter-width) !important;
+  /* biome-ignore lint/complexity/noImportantStyles: React Big Calendar writes the header gutter width inline. */
+  max-width: var(--itinerary-time-gutter-width) !important;
+}
+
+.tabi-itinerary-calendar .rbc-time-header.rbc-overflowing {
+  border-right: 0;
+  /* biome-ignore lint/complexity/noImportantStyles: React Big Calendar adds this scrollbar compensation inline. */
+  margin-right: 0 !important;
+}
+
+.tabi-itinerary-calendar .rbc-rtl .rbc-time-header.rbc-overflowing {
+  border-left: 0;
+  /* biome-ignore lint/complexity/noImportantStyles: React Big Calendar adds this scrollbar compensation inline. */
+  margin-left: 0 !important;
 }
 
 .tabi-itinerary-calendar .rbc-time-column .rbc-timeslot-group {
