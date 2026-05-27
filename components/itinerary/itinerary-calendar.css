@@ -141,31 +141,6 @@
   color: var(--muted-foreground);
 }
 
-.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--activity {
-  background: var(--chart-3);
-  color: var(--primary-foreground);
-}
-
-.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--transport {
-  background: var(--chart-2);
-  color: var(--primary-foreground);
-}
-
-.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--lodging {
-  background: var(--chart-4);
-  color: var(--primary-foreground);
-}
-
-.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--food {
-  background: var(--chart-1);
-  color: var(--primary-foreground);
-}
-
-.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--note {
-  background: var(--muted-foreground);
-  color: var(--background);
-}
-
 .tabi-calendar-event-content {
   display: flex;
   min-width: 0;

@@ -7,13 +7,20 @@ import {
   type CalendarShare,
   type CalendarSummary,
   createCalendarShare,
+  createUserCalendar,
   deleteCalendarShare,
+  deleteUserCalendar,
   getIncomingCalendarShares,
   getOutgoingCalendarShares,
+  getUserCalendars,
+  type SaveUserCalendarInput,
   type ShareCalendarInput,
   subscribeToIncomingCalendarShares,
   subscribeToOutgoingCalendarShares,
+  subscribeToUserCalendars,
+  type UserCalendar,
   updateCalendarShareRole,
+  updateUserCalendar,
 } from "@/services/calendar-sharing-service";
 import { useAuth } from "@/stores/auth-store";
 import { useItineraryUiStore } from "@/stores/itinerary-ui-store";
@@ -26,14 +33,34 @@ function outgoingCalendarSharesKey(uid?: string) {
   return ["calendar-shares", "outgoing", uid ?? "anonymous"];
 }
 
+function ownedCalendarsKey(uid?: string) {
+  return ["calendars", "owned", uid ?? "anonymous"];
+}
+
 function toSharedCalendar(share: CalendarShare): CalendarSummary {
   return {
-    id: share.ownerId,
+    id: share.calendarId,
     ownerId: share.ownerId,
     ownerEmail: share.ownerEmail,
-    label: share.ownerEmail,
+    label: share.calendarTitle || share.calendarLabel || share.ownerEmail,
+    description: share.calendarDescription,
     access: share.role,
     shareId: share.id,
+  };
+}
+
+function toOwnedCalendar(
+  calendar: UserCalendar,
+  ownerEmail: string,
+): CalendarSummary {
+  return {
+    id: calendar.id,
+    ownerId: calendar.ownerId,
+    ownerEmail,
+    label: calendar.title,
+    description: calendar.description,
+    archivedAt: calendar.archivedAt,
+    access: "owner",
   };
 }
 
@@ -50,12 +77,18 @@ export function useCalendars() {
     useState<Error | null>(null);
   const [outgoingRealtimeError, setOutgoingRealtimeError] =
     useState<Error | null>(null);
+  const [ownedCalendarsRealtimeError, setOwnedCalendarsRealtimeError] =
+    useState<Error | null>(null);
   const incomingQueryKey = useMemo(
     () => incomingCalendarSharesKey(user?.uid),
     [user?.uid],
   );
   const outgoingQueryKey = useMemo(
     () => outgoingCalendarSharesKey(user?.uid),
+    [user?.uid],
+  );
+  const ownedCalendarsQueryKey = useMemo(
+    () => ownedCalendarsKey(user?.uid),
     [user?.uid],
   );
 
@@ -67,6 +100,11 @@ export function useCalendars() {
   const outgoingSharesQuery = useQuery({
     queryKey: outgoingQueryKey,
     queryFn: () => getOutgoingCalendarShares(user?.uid as string),
+    enabled: !!user?.uid,
+  });
+  const ownedCalendarsQuery = useQuery({
+    queryKey: ownedCalendarsQueryKey,
+    queryFn: () => getUserCalendars(user?.uid as string),
     enabled: !!user?.uid,
   });
 
@@ -106,46 +144,65 @@ export function useCalendars() {
     );
   }, [outgoingQueryKey, queryClient, user?.uid]);
 
-  const ownCalendar = useMemo<CalendarSummary | null>(() => {
+  useEffect(() => {
     if (!user?.uid) {
-      return null;
+      setOwnedCalendarsRealtimeError(null);
+      queryClient.setQueryData(ownedCalendarsQueryKey, []);
+      return;
     }
 
-    return {
-      id: user.uid,
-      ownerId: user.uid,
-      ownerEmail: user.email ?? "",
-      label: user.displayName ?? user.email ?? "",
-      access: "owner",
-    };
-  }, [user?.displayName, user?.email, user?.uid]);
+    setOwnedCalendarsRealtimeError(null);
+
+    return subscribeToUserCalendars(
+      user.uid,
+      (calendars) => {
+        queryClient.setQueryData(ownedCalendarsQueryKey, calendars);
+      },
+      setOwnedCalendarsRealtimeError,
+    );
+  }, [ownedCalendarsQueryKey, queryClient, user?.uid]);
 
   const incomingShares = incomingSharesQuery.data ?? [];
   const outgoingShares = outgoingSharesQuery.data ?? [];
+  const ownedCalendars = ownedCalendarsQuery.data ?? [];
+  const ownedCalendarSummaries = useMemo(
+    () =>
+      ownedCalendars.map((calendar) =>
+        toOwnedCalendar(calendar, user?.email ?? ""),
+      ),
+    [ownedCalendars, user?.email],
+  );
+  const archivedCalendars = useMemo(
+    () => ownedCalendarSummaries.filter((calendar) => calendar.archivedAt),
+    [ownedCalendarSummaries],
+  );
   const calendars = useMemo<CalendarSummary[]>(() => {
-    if (!ownCalendar) {
-      return [];
-    }
-
-    return [ownCalendar, ...incomingShares.map(toSharedCalendar)];
-  }, [incomingShares, ownCalendar]);
+    return [
+      ...ownedCalendarSummaries.filter((calendar) => !calendar.archivedAt),
+      ...incomingShares.map(toSharedCalendar),
+    ];
+  }, [incomingShares, ownedCalendarSummaries]);
   const selectedCalendar =
-    calendars.find((calendar) => calendar.id === selectedCalendarId) ??
-    ownCalendar;
+    calendars.find((calendar) => calendar.id === selectedCalendarId) ?? null;
   const isCalendarsLoading =
-    incomingSharesQuery.isLoading || outgoingSharesQuery.isLoading;
+    incomingSharesQuery.isLoading ||
+    outgoingSharesQuery.isLoading ||
+    ownedCalendarsQuery.isLoading;
+  const selectedCalendarOutgoingShares = outgoingShares.filter(
+    (share) => share.calendarId === selectedCalendar?.id,
+  );
 
   useEffect(() => {
     if (
       !user?.uid ||
       isCalendarsLoading ||
-      !selectedCalendarId ||
-      calendars.some((calendar) => calendar.id === selectedCalendarId)
+      (selectedCalendarId &&
+        calendars.some((calendar) => calendar.id === selectedCalendarId))
     ) {
       return;
     }
 
-    setSelectedCalendarId(user.uid);
+    setSelectedCalendarId(calendars.at(0)?.id ?? null);
   }, [
     calendars,
     isCalendarsLoading,
@@ -155,18 +212,64 @@ export function useCalendars() {
   ]);
 
   const shareCalendarMutation = useMutation({
-    mutationFn: async (input: ShareCalendarInput) => {
-      if (!user?.uid) {
+    mutationFn: async (
+      input: Omit<
+        ShareCalendarInput,
+        "calendarDescription" | "calendarId" | "calendarLabel" | "calendarTitle"
+      >,
+    ) => {
+      if (
+        !user?.uid ||
+        !selectedCalendar ||
+        selectedCalendar.access !== "owner"
+      ) {
         throw new Error("User is required to share a calendar.");
       }
 
       return createCalendarShare({
         ...input,
+        calendarDescription: selectedCalendar.description,
+        calendarId: selectedCalendar.id,
+        calendarLabel: selectedCalendar.label,
+        calendarTitle: selectedCalendar.label,
         ownerId: user.uid,
         ownerEmail: user.email ?? "",
       });
     },
     onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: outgoingQueryKey });
+    },
+  });
+  const createCalendarMutation = useMutation({
+    mutationFn: async (input: SaveUserCalendarInput) => {
+      if (!user?.uid) {
+        throw new Error("User is required to create calendars.");
+      }
+
+      return createUserCalendar(user.uid, input);
+    },
+    onSuccess: async (calendarId) => {
+      setSelectedCalendarId(calendarId);
+      await queryClient.invalidateQueries({ queryKey: ownedCalendarsQueryKey });
+    },
+  });
+  const updateCalendarMutation = useMutation({
+    mutationFn: async (input: SaveUserCalendarInput & { calendarId: string }) =>
+      updateUserCalendar(input.calendarId, input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ownedCalendarsQueryKey });
+      await queryClient.invalidateQueries({ queryKey: outgoingQueryKey });
+    },
+  });
+  const deleteCalendarMutation = useMutation({
+    mutationFn: deleteUserCalendar,
+    onSuccess: async (_data, calendarId) => {
+      if (selectedCalendarId === calendarId) {
+        setSelectedCalendarId(
+          calendars.find((calendar) => calendar.id !== calendarId)?.id ?? null,
+        );
+      }
+      await queryClient.invalidateQueries({ queryKey: ownedCalendarsQueryKey });
       await queryClient.invalidateQueries({ queryKey: outgoingQueryKey });
     },
   });
@@ -186,17 +289,28 @@ export function useCalendars() {
 
   return {
     calendars,
+    archivedCalendars,
+    createCalendar: createCalendarMutation.mutateAsync,
     incomingCalendarShares: incomingShares,
+    isCreatingCalendar: createCalendarMutation.isPending,
     outgoingCalendarShares: outgoingShares,
+    selectedCalendarOutgoingShares,
     selectedCalendar,
     selectedCalendarId: selectedCalendar?.id ?? null,
     setSelectedCalendarId,
+    updateCalendar: updateCalendarMutation.mutateAsync,
+    deleteCalendar: deleteCalendarMutation.mutateAsync,
     shareCalendar: shareCalendarMutation.mutateAsync,
     updateCalendarShareRole: updateCalendarShareRoleMutation.mutateAsync,
     revokeCalendarShare: revokeCalendarShareMutation.mutateAsync,
-    calendarsRealtimeError: incomingRealtimeError ?? outgoingRealtimeError,
+    calendarsRealtimeError:
+      incomingRealtimeError ??
+      outgoingRealtimeError ??
+      ownedCalendarsRealtimeError,
     isCalendarsLoading,
+    isDeletingCalendar: deleteCalendarMutation.isPending,
     isSharingCalendar: shareCalendarMutation.isPending,
+    isUpdatingCalendar: updateCalendarMutation.isPending,
     isUpdatingCalendarShareRole: updateCalendarShareRoleMutation.isPending,
     isRevokingCalendarShare: revokeCalendarShareMutation.isPending,
   };

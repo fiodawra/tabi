@@ -14,8 +14,8 @@ import {
 } from "@/services/itinerary-service";
 import { useAuth } from "@/stores/auth-store";
 
-function getItineraryQueryKey(userId?: string) {
-  return ["itinerary-items", userId ?? "anonymous"];
+function getItineraryQueryKey(calendarId?: string) {
+  return ["itinerary-items", calendarId ?? "anonymous"];
 }
 
 function canEditCalendar(calendar?: CalendarSummary | null) {
@@ -33,21 +33,21 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
   const queryClient = useQueryClient();
   const [hasRealtimeSnapshot, setHasRealtimeSnapshot] = useState(false);
   const [realtimeError, setRealtimeError] = useState<Error | null>(null);
-  const calendarOwnerId = selectedCalendar?.ownerId;
+  const calendarId = selectedCalendar?.id;
   const hasCalendarWriteAccess = canEditCalendar(selectedCalendar);
   const queryKey = useMemo(
-    () => getItineraryQueryKey(calendarOwnerId),
-    [calendarOwnerId],
+    () => getItineraryQueryKey(calendarId),
+    [calendarId],
   );
 
   const itineraryQuery = useQuery({
     queryKey,
-    queryFn: () => getItineraryItems(calendarOwnerId as string),
-    enabled: !!user?.uid && !!calendarOwnerId,
+    queryFn: () => getItineraryItems(calendarId as string),
+    enabled: !!user?.uid && !!calendarId,
   });
 
   useEffect(() => {
-    if (!user?.uid || !calendarOwnerId) {
+    if (!user?.uid || !calendarId) {
       setHasRealtimeSnapshot(false);
       setRealtimeError(null);
       queryClient.setQueryData(queryKey, []);
@@ -58,7 +58,7 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
     setRealtimeError(null);
 
     const unsubscribe = subscribeToItineraryItems(
-      calendarOwnerId,
+      calendarId,
       (items) => {
         queryClient.setQueryData(queryKey, items);
         setHasRealtimeSnapshot(true);
@@ -70,7 +70,7 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
     );
 
     return unsubscribe;
-  }, [calendarOwnerId, queryClient, queryKey, user?.uid]);
+  }, [calendarId, queryClient, queryKey, user?.uid]);
 
   const createItineraryItemMutation = useMutation({
     mutationFn: async (input: SaveItineraryItemInput) => {
@@ -78,13 +78,13 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
         throw new Error("User is required to create itinerary items.");
       }
 
-      if (!calendarOwnerId || !hasCalendarWriteAccess) {
+      if (!calendarId || !hasCalendarWriteAccess) {
         throw new Error("Calendar write access is required.");
       }
 
       return createItineraryItem({
         ...input,
-        userId: calendarOwnerId,
+        userId: calendarId,
       });
     },
     onMutate: async (input) => {
@@ -92,13 +92,14 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
       const previousItems =
         queryClient.getQueryData<ItineraryItem[]>(queryKey) ?? [];
 
-      if (calendarOwnerId && hasCalendarWriteAccess) {
+      if (calendarId && hasCalendarWriteAccess) {
         const optimisticItem: ItineraryItem = {
           ...input,
+          category: input.category ?? null,
           id: `optimistic-${Date.now()}`,
           createdAt: new Date(),
           updatedAt: new Date(),
-          userId: calendarOwnerId,
+          userId: calendarId,
         };
 
         queryClient.setQueryData<ItineraryItem[]>(
@@ -191,7 +192,7 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
     isDeletingItineraryItem: deleteItineraryItemMutation.isPending,
     isItineraryLoading:
       itineraryQuery.isLoading ||
-      (!!user?.uid && !!calendarOwnerId && !hasRealtimeSnapshot),
+      (!!user?.uid && !!calendarId && !hasRealtimeSnapshot),
     isUpdatingItineraryItem: updateItineraryItemMutation.isPending,
     updateItineraryItem: updateItineraryItemMutation.mutateAsync,
   };

@@ -36,13 +36,18 @@
     "allDay": "All day",
     "emptyTitle": "No itinerary items yet",
     "emptyDescription": "Create the first plan or drag across the calendar to block time.",
+    "filterEmptyTitle": "No items match these filters",
+    "filterEmptyDescription": "Turn categories back on to show hidden itinerary items.",
     "emptyRange": "No itinerary items in this range.",
     "realtimeError": "Real-time updates are temporarily unavailable. Showing the latest cached itinerary.",
     "showMore": "+{count} more",
+    "calendarEmpty": {
+      "title": "Create a calendar first",
+      "description": "Make a calendar before adding itinerary items."
+    },
     "calendarSelector": {
       "ariaLabel": "Choose calendar",
       "placeholder": "Choose calendar",
-      "main": "My calendar",
       "shared": "Shared calendar",
       "owner": "Owner",
       "current": "Viewing as {access}"
@@ -72,6 +77,29 @@
         "generic": "Failed to share this calendar."
       }
     },
+    "calendarManager": {
+      "open": "Calendars",
+      "title": "Manage calendars",
+      "description": "Create trip calendars and edit or archive calendars you own.",
+      "titleField": "Calendar title",
+      "titlePlaceholder": "Japan spring trip",
+      "descriptionField": "Description",
+      "descriptionPlaceholder": "Optional notes about this trip.",
+      "create": "Create calendar",
+      "save": "Save calendar",
+      "cancelEdit": "Cancel edit",
+      "yourCalendars": "Your calendars",
+      "archived": "Archived",
+      "archivedBadge": "Archived",
+      "archivedEmpty": "No archived calendars.",
+      "edit": "Edit",
+      "delete": "Archive",
+      "empty": "Create a calendar to start planning.",
+      "errors": {
+        "calendar-name-required": "Enter a calendar title.",
+        "generic": "Failed to save this calendar."
+      }
+    },
     "toolbar": {
       "today": "Today",
       "previous": "Previous period",
@@ -90,9 +118,34 @@
       "trigger": "Toggle itinerary sidebar",
       "calendar": "Mini calendar",
       "categories": "Categories",
+      "categoriesEmpty": "No categories yet.",
       "upcoming": "Upcoming",
       "upcomingEmpty": "Upcoming category events will appear here.",
       "mobileHint": "Use the mini calendar above to jump dates."
+    },
+    "category": {
+      "uncategorized": "Uncategorized",
+      "realtimeError": "Category updates are temporarily unavailable."
+    },
+    "categoryManager": {
+      "open": "Manage",
+      "title": "Manage categories",
+      "description": "Create color-coded categories for this calendar.",
+      "name": "Category name",
+      "namePlaceholder": "Museum",
+      "color": "Color",
+      "create": "Create category",
+      "save": "Save category",
+      "cancelEdit": "Cancel edit",
+      "yourCategories": "Your categories",
+      "edit": "Edit",
+      "delete": "Delete",
+      "empty": "Create a category to color-code itinerary items.",
+      "errors": {
+        "category-color-required": "Choose a category color.",
+        "category-name-required": "Enter a category name.",
+        "generic": "Failed to save this category."
+      }
     },
     "views": {
       "month": "Month",
@@ -119,6 +172,7 @@
       "end": "End",
       "location": "Location",
       "category": "Category",
+      "categoryHint": "Optional. Categories belong to the selected calendar.",
       "allDay": "All-day item",
       "allDayHint": "Show this item at the top of the day.",
       "description": "Description"
@@ -186,7 +240,20 @@
     "calendarShareUpdateFailed": "Failed to update calendar share.",
     "calendarShareRevokeSuccess": "Calendar share revoked.",
     "calendarShareRevokeFailed": "Failed to revoke calendar share.",
-    "calendarSharingRealtimeFailed": "Real-time calendar sharing updates stopped."
+    "calendarSharingRealtimeFailed": "Real-time calendar sharing updates stopped.",
+    "calendarCreateSuccess": "Calendar created.",
+    "calendarCreateFailed": "Failed to create calendar.",
+    "calendarUpdateSuccess": "Calendar updated.",
+    "calendarUpdateFailed": "Failed to update calendar.",
+    "calendarDeleteSuccess": "Calendar archived.",
+    "calendarDeleteFailed": "Failed to archive calendar.",
+    "categoryRealtimeFailed": "Real-time category updates stopped.",
+    "categoryCreateSuccess": "Category created.",
+    "categoryCreateFailed": "Failed to create category.",
+    "categoryUpdateSuccess": "Category updated.",
+    "categoryUpdateFailed": "Failed to update category.",
+    "categoryDeleteSuccess": "Category deleted.",
+    "categoryDeleteFailed": "Failed to delete category."
   },
   "HeaderSearch": {
     "openAriaLabel": "Open search",

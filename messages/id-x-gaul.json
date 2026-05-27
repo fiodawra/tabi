@@ -36,16 +36,21 @@
     "allDay": "Seharian",
     "emptyTitle": "Itinerary masih kosong nih",
     "emptyDescription": "Bikin rencana pertama atau drag di kalender buat ngeblok waktu.",
+    "filterEmptyTitle": "Ga ada item yang cocok sama filter",
+    "filterEmptyDescription": "Nyalain lagi kategorinya biar item itinerary yang ke-hide muncul.",
     "emptyRange": "Ga ada item itinerary di range ini.",
     "realtimeError": "Update real-time lagi ga jalan. Itinerary cache terbaru masih ditampilin.",
     "showMore": "+{count} lagi",
     "calendarSelector": {
       "ariaLabel": "Pilih kalender",
       "placeholder": "Pilih kalender",
-      "main": "Kalender gue",
       "shared": "Kalender sharing",
       "owner": "Owner",
       "current": "Lagi lihat sebagai {access}"
+    },
+    "calendarEmpty": {
+      "title": "Bikin kalender dulu",
+      "description": "Bikin kalender sebelum nambah item itinerary."
     },
     "access": {
       "owner": "Owner",
@@ -72,6 +77,29 @@
         "generic": "Gagal share kalender ini."
       }
     },
+    "calendarManager": {
+      "open": "Kalender",
+      "title": "Atur kalender",
+      "description": "Bikin kalender trip, terus edit atau arsipkan kalender punya lo.",
+      "titleField": "Judul kalender",
+      "titlePlaceholder": "Trip Jepang spring",
+      "descriptionField": "Deskripsi",
+      "descriptionPlaceholder": "Catatan opsional soal trip ini.",
+      "create": "Bikin kalender",
+      "save": "Simpan kalender",
+      "cancelEdit": "Batal edit",
+      "yourCalendars": "Kalender lo",
+      "archived": "Diarsipin",
+      "archivedBadge": "Diarsipin",
+      "archivedEmpty": "Belum ada kalender yang diarsipin.",
+      "edit": "Edit",
+      "delete": "Arsipkan",
+      "empty": "Bikin kalender buat mulai planning.",
+      "errors": {
+        "calendar-name-required": "Isi judul kalender dulu.",
+        "generic": "Gagal nyimpen kalender ini."
+      }
+    },
     "toolbar": {
       "today": "Hari ini",
       "previous": "Periode sebelumnya",
@@ -90,9 +118,34 @@
       "trigger": "Buka atau tutup sidebar itinerary",
       "calendar": "Kalender mini",
       "categories": "Kategori",
+      "categoriesEmpty": "Belum ada kategori nih.",
       "upcoming": "Next up",
       "upcomingEmpty": "Event kategori berikutnya bakal nongol di sini.",
       "mobileHint": "Pake kalender mini di atas buat loncat tanggal."
+    },
+    "category": {
+      "uncategorized": "Tanpa kategori",
+      "realtimeError": "Update kategori lagi ga jalan."
+    },
+    "categoryManager": {
+      "open": "Atur",
+      "title": "Atur kategori",
+      "description": "Bikin kategori berwarna buat kalender ini.",
+      "name": "Nama kategori",
+      "namePlaceholder": "Museum",
+      "color": "Warna",
+      "create": "Bikin kategori",
+      "save": "Simpan kategori",
+      "cancelEdit": "Batal edit",
+      "yourCategories": "Kategori lo",
+      "edit": "Edit",
+      "delete": "Hapus",
+      "empty": "Bikin kategori buat kasih warna ke item itinerary.",
+      "errors": {
+        "category-color-required": "Pilih warna kategori dulu.",
+        "category-name-required": "Isi nama kategori dulu.",
+        "generic": "Gagal nyimpen kategori ini."
+      }
     },
     "views": {
       "month": "Bulan",
@@ -119,6 +172,7 @@
       "end": "Selesai",
       "location": "Lokasi",
       "category": "Kategori",
+      "categoryHint": "Opsional. Kategori ngikut kalender yang dipilih.",
       "allDay": "Item seharian",
       "allDayHint": "Tampilin item ini di atas hari.",
       "description": "Deskripsi"
@@ -186,7 +240,20 @@
     "calendarShareUpdateFailed": "Gagal update akses kalender.",
     "calendarShareRevokeSuccess": "Akses kalender berhasil dicabut.",
     "calendarShareRevokeFailed": "Gagal cabut akses kalender.",
-    "calendarSharingRealtimeFailed": "Update real-time share kalender berhenti."
+    "calendarSharingRealtimeFailed": "Update real-time share kalender berhenti.",
+    "calendarCreateSuccess": "Kalender berhasil dibuat.",
+    "calendarCreateFailed": "Gagal bikin kalender.",
+    "calendarUpdateSuccess": "Kalender berhasil diupdate.",
+    "calendarUpdateFailed": "Gagal update kalender.",
+    "calendarDeleteSuccess": "Kalender berhasil diarsipin.",
+    "calendarDeleteFailed": "Gagal arsipin kalender.",
+    "categoryRealtimeFailed": "Update real-time kategori berhenti.",
+    "categoryCreateSuccess": "Kategori berhasil dibuat.",
+    "categoryCreateFailed": "Gagal bikin kategori.",
+    "categoryUpdateSuccess": "Kategori berhasil diupdate.",
+    "categoryUpdateFailed": "Gagal update kategori.",
+    "categoryDeleteSuccess": "Kategori berhasil dihapus.",
+    "categoryDeleteFailed": "Gagal hapus kategori."
   },
   "HeaderSearch": {
     "openAriaLabel": "Buka pencarian",

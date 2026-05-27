@@ -17,19 +17,9 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-export const ITINERARY_CATEGORIES = [
-  "activity",
-  "transport",
-  "lodging",
-  "food",
-  "note",
-] as const;
-
-export type ItineraryCategory = (typeof ITINERARY_CATEGORIES)[number];
-
 export type ItineraryItem = {
   allDay: boolean;
-  category: ItineraryCategory;
+  category: string | null;
   createdAt?: Date;
   description: string;
   endAt: Date;
@@ -43,7 +33,7 @@ export type ItineraryItem = {
 
 export type SaveItineraryItemInput = {
   allDay: boolean;
-  category: ItineraryCategory;
+  category?: string | null;
   description: string;
   endAt: Date;
   location: string;
@@ -70,13 +60,6 @@ type ItineraryItemDocument = {
 
 const ITINERARY_COLLECTION = "itineraryItems";
 
-function isItineraryCategory(value: unknown): value is ItineraryCategory {
-  return (
-    typeof value === "string" &&
-    ITINERARY_CATEGORIES.includes(value as ItineraryCategory)
-  );
-}
-
 function readOptionalDate(value: unknown): Date | undefined {
   if (!value) {
     return undefined;
@@ -102,6 +85,10 @@ function readOptionalDate(value: unknown): Date | undefined {
   return undefined;
 }
 
+function readOptionalCategory(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
 function readRequiredDate(value: unknown) {
   return readOptionalDate(value) ?? new Date();
 }
@@ -114,7 +101,7 @@ function toItineraryItem(
   return {
     id: itineraryDoc.id,
     allDay: Boolean(data.allDay),
-    category: isItineraryCategory(data.category) ? data.category : "activity",
+    category: readOptionalCategory(data.category),
     createdAt: readOptionalDate(data.createdAt),
     description: data.description ?? "",
     endAt: readRequiredDate(data.endAt),
@@ -165,7 +152,7 @@ export async function createItineraryItem(input: CreateItineraryItemInput) {
     title: input.title,
     description: input.description,
     location: input.location,
-    category: input.category,
+    category: input.category ?? null,
     startAt: input.startAt,
     endAt: input.endAt,
     allDay: input.allDay,
