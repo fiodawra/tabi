@@ -1,0 +1,166 @@
+@import "react-big-calendar/lib/css/react-big-calendar.css";
+@import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
+
+.tabi-itinerary-calendar {
+  --itinerary-time-slot-height: 1.75rem;
+  --itinerary-timeslots-per-hour: 2;
+  --rbc-border: color-mix(in oklch, var(--border) 86%, transparent);
+  --rbc-muted: color-mix(in oklch, var(--muted) 72%, transparent);
+  --rbc-selected: color-mix(in oklch, var(--primary) 18%, transparent);
+}
+
+.tabi-itinerary-calendar .rbc-calendar {
+  color: var(--foreground);
+  background: var(--background);
+  font-size: 0.75rem;
+  height: auto;
+  line-height: 1.5;
+  min-height: 42rem;
+}
+
+.tabi-itinerary-calendar .rbc-month-view,
+.tabi-itinerary-calendar .rbc-time-view,
+.tabi-itinerary-calendar .rbc-agenda-view {
+  border-color: var(--rbc-border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+}
+
+.tabi-itinerary-calendar .rbc-header,
+.tabi-itinerary-calendar .rbc-time-header-content,
+.tabi-itinerary-calendar .rbc-time-content,
+.tabi-itinerary-calendar .rbc-day-bg + .rbc-day-bg,
+.tabi-itinerary-calendar .rbc-month-row + .rbc-month-row,
+.tabi-itinerary-calendar .rbc-header + .rbc-header,
+.tabi-itinerary-calendar .rbc-timeslot-group,
+.tabi-itinerary-calendar .rbc-time-slot,
+.tabi-itinerary-calendar .rbc-agenda-table,
+.tabi-itinerary-calendar .rbc-agenda-table tbody > tr > td,
+.tabi-itinerary-calendar .rbc-agenda-table thead > tr > th {
+  border-color: var(--rbc-border);
+}
+
+.tabi-itinerary-calendar .rbc-header {
+  padding: 0.5rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.tabi-itinerary-calendar .rbc-time-view,
+.tabi-itinerary-calendar .rbc-time-content {
+  overflow: visible;
+}
+
+.tabi-itinerary-calendar .rbc-time-content {
+  flex: none;
+}
+
+.tabi-itinerary-calendar .rbc-time-column .rbc-timeslot-group {
+  flex: 0 0
+    calc(
+      var(--itinerary-time-slot-height) *
+      var(--itinerary-timeslots-per-hour)
+    );
+}
+
+.tabi-itinerary-calendar .rbc-time-slot {
+  min-height: var(--itinerary-time-slot-height);
+}
+
+.tabi-itinerary-calendar .rbc-off-range-bg,
+.tabi-itinerary-calendar .rbc-today {
+  background: var(--rbc-muted);
+}
+
+.tabi-itinerary-calendar .rbc-button-link {
+  color: inherit;
+}
+
+.tabi-itinerary-calendar .rbc-now .rbc-button-link,
+.tabi-itinerary-calendar .rbc-current-time-indicator {
+  color: var(--primary-foreground);
+}
+
+.tabi-itinerary-calendar .rbc-current-time-indicator {
+  background-color: var(--primary);
+}
+
+.tabi-itinerary-calendar .rbc-slot-selection,
+.tabi-itinerary-calendar .rbc-selected-cell {
+  background: var(--rbc-selected);
+}
+
+.tabi-itinerary-calendar .rbc-event,
+.tabi-itinerary-calendar .rbc-day-slot .rbc-event {
+  border: 0;
+  border-radius: min(var(--radius-sm), 6px);
+  padding: 0.125rem 0.375rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: none;
+}
+
+.tabi-itinerary-calendar .rbc-event:focus,
+.tabi-itinerary-calendar .rbc-event.rbc-selected {
+  outline: 2px solid color-mix(in oklch, var(--ring) 70%, transparent);
+  outline-offset: 1px;
+}
+
+.tabi-itinerary-calendar .rbc-show-more {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border-radius: min(var(--radius-sm), 6px);
+  padding: 0 0.25rem;
+}
+
+.tabi-itinerary-calendar .rbc-agenda-empty {
+  color: var(--muted-foreground);
+}
+
+.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--activity {
+  background: var(--chart-3);
+  color: var(--primary-foreground);
+}
+
+.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--transport {
+  background: var(--chart-2);
+  color: var(--primary-foreground);
+}
+
+.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--lodging {
+  background: var(--chart-4);
+  color: var(--primary-foreground);
+}
+
+.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--food {
+  background: var(--chart-1);
+  color: var(--primary-foreground);
+}
+
+.tabi-itinerary-calendar .rbc-event.tabi-calendar-event--note {
+  background: var(--muted-foreground);
+  color: var(--background);
+}
+
+.tabi-calendar-event-content {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.tabi-calendar-event-title,
+.tabi-calendar-event-location {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tabi-calendar-event-title {
+  font-weight: 600;
+}
+
+.tabi-calendar-event-location {
+  font-size: 0.6875rem;
+  opacity: 0.82;
+}

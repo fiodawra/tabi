@@ -6,6 +6,7 @@ import {
   useHotkeys,
 } from "@tanstack/react-hotkeys";
 import {
+  CalendarDaysIcon,
   GridIcon,
   HomeIcon,
   LanguagesIcon,
@@ -91,6 +92,11 @@ export function HeaderSearch() {
           icon: GridIcon,
           label: t("item.goFeedback"),
           onClick: () => goTo("/feedback"),
+        },
+        {
+          icon: CalendarDaysIcon,
+          label: t("item.goItinerary"),
+          onClick: () => goTo("/itinerary"),
         },
       ],
     },

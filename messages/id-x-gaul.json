@@ -24,6 +24,86 @@
     "submit": "Kirim feedback",
     "sending": "Lagi ngirim..."
   },
+  "ItineraryPage": {
+    "title": "Itinerary",
+    "description": "Susun tiap spot, pindahan, makan, sama booking di kalender live.",
+    "calendarAriaLabel": "Kalender itinerary",
+    "add": "Tambah item",
+    "create": "Bikin item",
+    "save": "Simpan update",
+    "delete": "Hapus item",
+    "allDay": "Seharian",
+    "emptyTitle": "Itinerary masih kosong nih",
+    "emptyDescription": "Bikin rencana pertama atau drag di kalender buat ngeblok waktu.",
+    "emptyRange": "Ga ada item itinerary di range ini.",
+    "realtimeError": "Update real-time lagi ga jalan. Itinerary cache terbaru masih ditampilin.",
+    "showMore": "+{count} lagi",
+    "toolbar": {
+      "today": "Hari ini",
+      "previous": "Periode sebelumnya",
+      "next": "Periode berikutnya",
+      "navigation": "Navigasi kalender",
+      "viewSwitcher": "Ganti tampilan kalender",
+      "intervalSwitcher": "Ubah interval grid waktu"
+    },
+    "interval": {
+      "15": "15 menit",
+      "30": "30 menit",
+      "60": "1 jam"
+    },
+    "sidebar": {
+      "title": "Kalender",
+      "trigger": "Buka atau tutup sidebar itinerary",
+      "calendar": "Kalender mini",
+      "categories": "Kategori",
+      "upcoming": "Next up",
+      "upcomingEmpty": "Event kategori berikutnya bakal nongol di sini.",
+      "mobileHint": "Pake kalender mini di atas buat loncat tanggal."
+    },
+    "views": {
+      "month": "Bulan",
+      "week": "Minggu",
+      "day": "Hari",
+      "agenda": "Agenda",
+      "work_week": "Hari kerja"
+    },
+    "agenda": {
+      "date": "Tanggal",
+      "time": "Waktu",
+      "event": "Item"
+    },
+    "dialog": {
+      "createTitle": "Tambah item itinerary",
+      "editTitle": "Edit item itinerary",
+      "description": "Atur waktu, lokasi, sama kategori buat bagian trip ini."
+    },
+    "fields": {
+      "title": "Judul",
+      "start": "Mulai",
+      "end": "Selesai",
+      "location": "Lokasi",
+      "category": "Kategori",
+      "allDay": "Item seharian",
+      "allDayHint": "Tampilin item ini di atas hari.",
+      "description": "Deskripsi"
+    },
+    "placeholders": {
+      "title": "Flight pagi",
+      "location": "Bandara, hotel, resto...",
+      "description": "Tambah notes, detail booking, atau reminder."
+    },
+    "categories": {
+      "activity": "Aktivitas",
+      "transport": "Transport",
+      "lodging": "Hotel",
+      "food": "Makan",
+      "note": "Catatan"
+    },
+    "validation": {
+      "titleRequired": "Judulnya isi dulu sebelum disimpan.",
+      "endAfterStart": "Waktu selesai harus setelah waktu mulai."
+    }
+  },
   "ThemeToast": {
     "updated": "Tema di-switch jadi: {theme}",
     "light": "Terang",
@@ -56,7 +136,14 @@
     "feedbackSubmitSuccess": "Feedback berhasil kekirim.",
     "feedbackSubmitFailed": "Gagal ngirim feedback.",
     "feedbackStatusUpdateSuccess": "Status feedback berhasil diupdate.",
-    "feedbackStatusUpdateFailed": "Gagal update status feedback."
+    "feedbackStatusUpdateFailed": "Gagal update status feedback.",
+    "itineraryCreateSuccess": "Item itinerary berhasil dibuat.",
+    "itineraryCreateFailed": "Gagal bikin item itinerary.",
+    "itineraryUpdateSuccess": "Item itinerary berhasil diupdate.",
+    "itineraryUpdateFailed": "Gagal update item itinerary.",
+    "itineraryDeleteSuccess": "Item itinerary berhasil dihapus.",
+    "itineraryDeleteFailed": "Gagal hapus item itinerary.",
+    "itineraryRealtimeFailed": "Update real-time itinerary berhenti."
   },
   "HeaderSearch": {
     "openAriaLabel": "Buka pencarian",
@@ -70,6 +157,7 @@
       "goHome": "Gas ke beranda",
       "goDashboard": "Gas ke dashboard",
       "goFeedback": "Gas ke halaman feedback",
+      "goItinerary": "Gas ke halaman itinerary",
       "darkMode": "Mode gelap",
       "lightMode": "Mode terang",
       "systemMode": "Mode sistem",

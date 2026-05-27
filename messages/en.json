@@ -24,6 +24,86 @@
     "submit": "Send feedback",
     "sending": "Sending..."
   },
+  "ItineraryPage": {
+    "title": "Itinerary",
+    "description": "Plan each stop, transfer, meal, and booking in a live calendar.",
+    "calendarAriaLabel": "Itinerary calendar",
+    "add": "Add item",
+    "create": "Create item",
+    "save": "Save changes",
+    "delete": "Delete item",
+    "allDay": "All day",
+    "emptyTitle": "No itinerary items yet",
+    "emptyDescription": "Create the first plan or drag across the calendar to block time.",
+    "emptyRange": "No itinerary items in this range.",
+    "realtimeError": "Real-time updates are temporarily unavailable. Showing the latest cached itinerary.",
+    "showMore": "+{count} more",
+    "toolbar": {
+      "today": "Today",
+      "previous": "Previous period",
+      "next": "Next period",
+      "navigation": "Calendar navigation",
+      "viewSwitcher": "Switch calendar view",
+      "intervalSwitcher": "Change time grid interval"
+    },
+    "interval": {
+      "15": "15 min",
+      "30": "30 min",
+      "60": "1 hour"
+    },
+    "sidebar": {
+      "title": "Calendar",
+      "trigger": "Toggle itinerary sidebar",
+      "calendar": "Mini calendar",
+      "categories": "Categories",
+      "upcoming": "Upcoming",
+      "upcomingEmpty": "Upcoming category events will appear here.",
+      "mobileHint": "Use the mini calendar above to jump dates."
+    },
+    "views": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "agenda": "Agenda",
+      "work_week": "Work week"
+    },
+    "agenda": {
+      "date": "Date",
+      "time": "Time",
+      "event": "Item"
+    },
+    "dialog": {
+      "createTitle": "Add itinerary item",
+      "editTitle": "Edit itinerary item",
+      "description": "Set the time, place, and category for this part of your trip."
+    },
+    "fields": {
+      "title": "Title",
+      "start": "Start",
+      "end": "End",
+      "location": "Location",
+      "category": "Category",
+      "allDay": "All-day item",
+      "allDayHint": "Show this item at the top of the day.",
+      "description": "Description"
+    },
+    "placeholders": {
+      "title": "Morning flight",
+      "location": "Airport, hotel, restaurant...",
+      "description": "Add notes, booking details, or reminders."
+    },
+    "categories": {
+      "activity": "Activity",
+      "transport": "Transport",
+      "lodging": "Lodging",
+      "food": "Food",
+      "note": "Note"
+    },
+    "validation": {
+      "titleRequired": "Add a title before saving.",
+      "endAfterStart": "End time must be after start time."
+    }
+  },
   "ThemeToast": {
     "updated": "Theme updated: {theme}",
     "light": "Light",
@@ -56,7 +136,14 @@
     "feedbackSubmitSuccess": "Feedback sent successfully.",
     "feedbackSubmitFailed": "Failed to send feedback.",
     "feedbackStatusUpdateSuccess": "Feedback status updated.",
-    "feedbackStatusUpdateFailed": "Failed to update feedback status."
+    "feedbackStatusUpdateFailed": "Failed to update feedback status.",
+    "itineraryCreateSuccess": "Itinerary item created.",
+    "itineraryCreateFailed": "Failed to create itinerary item.",
+    "itineraryUpdateSuccess": "Itinerary item updated.",
+    "itineraryUpdateFailed": "Failed to update itinerary item.",
+    "itineraryDeleteSuccess": "Itinerary item deleted.",
+    "itineraryDeleteFailed": "Failed to delete itinerary item.",
+    "itineraryRealtimeFailed": "Real-time itinerary updates stopped."
   },
   "HeaderSearch": {
     "openAriaLabel": "Open search",
@@ -70,6 +157,7 @@
       "goHome": "Go to home page",
       "goDashboard": "Go to dashboard",
       "goFeedback": "Go to feedback page",
+      "goItinerary": "Go to itinerary page",
       "darkMode": "Dark mode",
       "lightMode": "Light mode",
       "systemMode": "System mode",
