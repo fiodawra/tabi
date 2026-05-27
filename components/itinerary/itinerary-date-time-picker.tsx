@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 
 type ItineraryDateTimePickerProps = {
   description?: string;
+  disabled?: boolean;
   id: string;
   label: string;
   locale: AppLocale;
@@ -82,6 +83,7 @@ function getTimeValue(value: Date) {
 
 export function ItineraryDateTimePicker({
   description,
+  disabled = false,
   id,
   label,
   locale,
@@ -102,6 +104,7 @@ export function ItineraryDateTimePicker({
           <PopoverTrigger asChild>
             <Button
               className={cn("w-full justify-start sm:flex-1")}
+              disabled={disabled}
               id={id}
               type="button"
               variant="outline"
@@ -124,6 +127,7 @@ export function ItineraryDateTimePicker({
           </PopoverContent>
         </Popover>
         <Select
+          disabled={disabled}
           onValueChange={(nextTime) => onChange(setTimePart(value, nextTime))}
           value={timeValue}
         >

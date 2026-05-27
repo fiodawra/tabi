@@ -32,12 +32,46 @@
     "create": "Create item",
     "save": "Save changes",
     "delete": "Delete item",
+    "close": "Close",
     "allDay": "All day",
     "emptyTitle": "No itinerary items yet",
     "emptyDescription": "Create the first plan or drag across the calendar to block time.",
     "emptyRange": "No itinerary items in this range.",
     "realtimeError": "Real-time updates are temporarily unavailable. Showing the latest cached itinerary.",
     "showMore": "+{count} more",
+    "calendarSelector": {
+      "ariaLabel": "Choose calendar",
+      "placeholder": "Choose calendar",
+      "main": "My calendar",
+      "shared": "Shared calendar",
+      "owner": "Owner",
+      "current": "Viewing as {access}"
+    },
+    "access": {
+      "owner": "Owner",
+      "viewer": "Viewer",
+      "editor": "Editor"
+    },
+    "share": {
+      "open": "Share",
+      "title": "Share calendar",
+      "description": "Invite an existing user by email and choose what they can do.",
+      "email": "User email",
+      "emailPlaceholder": "friend@example.com",
+      "role": "Role",
+      "submit": "Share calendar",
+      "sharedWith": "Shared with",
+      "empty": "This calendar is not shared yet.",
+      "revoke": "Revoke",
+      "realtimeError": "Calendar sharing updates are temporarily unavailable.",
+      "errors": {
+        "email-required": "Enter an email before sharing.",
+        "self-share": "You cannot share your calendar with yourself.",
+        "user-not-found": "No existing user was found for that email.",
+        "duplicate-share": "This calendar is already shared with that user.",
+        "generic": "Failed to share this calendar."
+      }
+    },
     "toolbar": {
       "today": "Today",
       "previous": "Previous period",
@@ -75,7 +109,9 @@
     "dialog": {
       "createTitle": "Add itinerary item",
       "editTitle": "Edit itinerary item",
-      "description": "Set the time, place, and category for this part of your trip."
+      "viewTitle": "View itinerary item",
+      "description": "Set the time, place, and category for this part of your trip.",
+      "viewDescription": "This shared calendar is view-only for your account."
     },
     "fields": {
       "title": "Title",
@@ -143,7 +179,14 @@
     "itineraryUpdateFailed": "Failed to update itinerary item.",
     "itineraryDeleteSuccess": "Itinerary item deleted.",
     "itineraryDeleteFailed": "Failed to delete itinerary item.",
-    "itineraryRealtimeFailed": "Real-time itinerary updates stopped."
+    "itineraryRealtimeFailed": "Real-time itinerary updates stopped.",
+    "calendarShareSuccess": "Calendar shared.",
+    "calendarShareFailed": "Failed to share calendar.",
+    "calendarShareUpdateSuccess": "Calendar share updated.",
+    "calendarShareUpdateFailed": "Failed to update calendar share.",
+    "calendarShareRevokeSuccess": "Calendar share revoked.",
+    "calendarShareRevokeFailed": "Failed to revoke calendar share.",
+    "calendarSharingRealtimeFailed": "Real-time calendar sharing updates stopped."
   },
   "HeaderSearch": {
     "openAriaLabel": "Open search",

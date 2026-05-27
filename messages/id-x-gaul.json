@@ -32,12 +32,46 @@
     "create": "Bikin item",
     "save": "Simpan update",
     "delete": "Hapus item",
+    "close": "Tutup",
     "allDay": "Seharian",
     "emptyTitle": "Itinerary masih kosong nih",
     "emptyDescription": "Bikin rencana pertama atau drag di kalender buat ngeblok waktu.",
     "emptyRange": "Ga ada item itinerary di range ini.",
     "realtimeError": "Update real-time lagi ga jalan. Itinerary cache terbaru masih ditampilin.",
     "showMore": "+{count} lagi",
+    "calendarSelector": {
+      "ariaLabel": "Pilih kalender",
+      "placeholder": "Pilih kalender",
+      "main": "Kalender gue",
+      "shared": "Kalender sharing",
+      "owner": "Owner",
+      "current": "Lagi lihat sebagai {access}"
+    },
+    "access": {
+      "owner": "Owner",
+      "viewer": "Viewer",
+      "editor": "Editor"
+    },
+    "share": {
+      "open": "Share",
+      "title": "Share kalender",
+      "description": "Invite user yang udah daftar lewat email, terus pilih aksesnya.",
+      "email": "Email user",
+      "emailPlaceholder": "temen@example.com",
+      "role": "Role",
+      "submit": "Share kalender",
+      "sharedWith": "Dishare ke",
+      "empty": "Kalender ini belum dishare nih.",
+      "revoke": "Cabut",
+      "realtimeError": "Update real-time share kalender lagi ga jalan.",
+      "errors": {
+        "email-required": "Isi email dulu sebelum share.",
+        "self-share": "Ga bisa share kalender ke diri sendiri.",
+        "user-not-found": "Ga nemu user terdaftar dengan email itu.",
+        "duplicate-share": "Kalender ini udah dishare ke user itu.",
+        "generic": "Gagal share kalender ini."
+      }
+    },
     "toolbar": {
       "today": "Hari ini",
       "previous": "Periode sebelumnya",
@@ -75,7 +109,9 @@
     "dialog": {
       "createTitle": "Tambah item itinerary",
       "editTitle": "Edit item itinerary",
-      "description": "Atur waktu, lokasi, sama kategori buat bagian trip ini."
+      "viewTitle": "Lihat item itinerary",
+      "description": "Atur waktu, lokasi, sama kategori buat bagian trip ini.",
+      "viewDescription": "Kalender sharing ini cuma bisa lo lihat."
     },
     "fields": {
       "title": "Judul",
@@ -143,7 +179,14 @@
     "itineraryUpdateFailed": "Gagal update item itinerary.",
     "itineraryDeleteSuccess": "Item itinerary berhasil dihapus.",
     "itineraryDeleteFailed": "Gagal hapus item itinerary.",
-    "itineraryRealtimeFailed": "Update real-time itinerary berhenti."
+    "itineraryRealtimeFailed": "Update real-time itinerary berhenti.",
+    "calendarShareSuccess": "Kalender berhasil dishare.",
+    "calendarShareFailed": "Gagal share kalender.",
+    "calendarShareUpdateSuccess": "Akses kalender berhasil diupdate.",
+    "calendarShareUpdateFailed": "Gagal update akses kalender.",
+    "calendarShareRevokeSuccess": "Akses kalender berhasil dicabut.",
+    "calendarShareRevokeFailed": "Gagal cabut akses kalender.",
+    "calendarSharingRealtimeFailed": "Update real-time share kalender berhenti."
   },
   "HeaderSearch": {
     "openAriaLabel": "Buka pencarian",

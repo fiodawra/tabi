@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import type { CalendarSummary } from "@/services/calendar-sharing-service";
 import {
   createItineraryItem,
   deleteItineraryItem,
@@ -17,27 +18,36 @@ function getItineraryQueryKey(userId?: string) {
   return ["itinerary-items", userId ?? "anonymous"];
 }
 
+function canEditCalendar(calendar?: CalendarSummary | null) {
+  return calendar?.access === "owner" || calendar?.access === "editor";
+}
+
 function sortItineraryItems(items: ItineraryItem[]) {
   return [...items].sort((firstItem, secondItem) => {
     return firstItem.startAt.getTime() - secondItem.startAt.getTime();
   });
 }
 
-export function useItinerary() {
+export function useItinerary(selectedCalendar?: CalendarSummary | null) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [hasRealtimeSnapshot, setHasRealtimeSnapshot] = useState(false);
   const [realtimeError, setRealtimeError] = useState<Error | null>(null);
-  const queryKey = useMemo(() => getItineraryQueryKey(user?.uid), [user?.uid]);
+  const calendarOwnerId = selectedCalendar?.ownerId;
+  const hasCalendarWriteAccess = canEditCalendar(selectedCalendar);
+  const queryKey = useMemo(
+    () => getItineraryQueryKey(calendarOwnerId),
+    [calendarOwnerId],
+  );
 
   const itineraryQuery = useQuery({
     queryKey,
-    queryFn: () => getItineraryItems(user?.uid as string),
-    enabled: !!user?.uid,
+    queryFn: () => getItineraryItems(calendarOwnerId as string),
+    enabled: !!user?.uid && !!calendarOwnerId,
   });
 
   useEffect(() => {
-    if (!user?.uid) {
+    if (!user?.uid || !calendarOwnerId) {
       setHasRealtimeSnapshot(false);
       setRealtimeError(null);
       queryClient.setQueryData(queryKey, []);
@@ -48,7 +58,7 @@ export function useItinerary() {
     setRealtimeError(null);
 
     const unsubscribe = subscribeToItineraryItems(
-      user.uid,
+      calendarOwnerId,
       (items) => {
         queryClient.setQueryData(queryKey, items);
         setHasRealtimeSnapshot(true);
@@ -60,7 +70,7 @@ export function useItinerary() {
     );
 
     return unsubscribe;
-  }, [queryClient, queryKey, user?.uid]);
+  }, [calendarOwnerId, queryClient, queryKey, user?.uid]);
 
   const createItineraryItemMutation = useMutation({
     mutationFn: async (input: SaveItineraryItemInput) => {
@@ -68,9 +78,13 @@ export function useItinerary() {
         throw new Error("User is required to create itinerary items.");
       }
 
+      if (!calendarOwnerId || !hasCalendarWriteAccess) {
+        throw new Error("Calendar write access is required.");
+      }
+
       return createItineraryItem({
         ...input,
-        userId: user.uid,
+        userId: calendarOwnerId,
       });
     },
     onMutate: async (input) => {
@@ -78,13 +92,13 @@ export function useItinerary() {
       const previousItems =
         queryClient.getQueryData<ItineraryItem[]>(queryKey) ?? [];
 
-      if (user?.uid) {
+      if (calendarOwnerId && hasCalendarWriteAccess) {
         const optimisticItem: ItineraryItem = {
           ...input,
           id: `optimistic-${Date.now()}`,
           createdAt: new Date(),
           updatedAt: new Date(),
-          userId: user.uid,
+          userId: calendarOwnerId,
         };
 
         queryClient.setQueryData<ItineraryItem[]>(
@@ -107,7 +121,13 @@ export function useItinerary() {
     mutationFn: async (input: {
       input: Partial<SaveItineraryItemInput>;
       itineraryItemId: string;
-    }) => updateItineraryItem(input.itineraryItemId, input.input),
+    }) => {
+      if (!hasCalendarWriteAccess) {
+        throw new Error("Calendar write access is required.");
+      }
+
+      return updateItineraryItem(input.itineraryItemId, input.input);
+    },
     onMutate: async ({ input, itineraryItemId }) => {
       await queryClient.cancelQueries({ queryKey });
       const previousItems =
@@ -135,7 +155,13 @@ export function useItinerary() {
   });
 
   const deleteItineraryItemMutation = useMutation({
-    mutationFn: deleteItineraryItem,
+    mutationFn: async (itineraryItemId: string) => {
+      if (!hasCalendarWriteAccess) {
+        throw new Error("Calendar write access is required.");
+      }
+
+      return deleteItineraryItem(itineraryItemId);
+    },
     onMutate: async (itineraryItemId) => {
       await queryClient.cancelQueries({ queryKey });
       const previousItems =
@@ -164,7 +190,8 @@ export function useItinerary() {
     isCreatingItineraryItem: createItineraryItemMutation.isPending,
     isDeletingItineraryItem: deleteItineraryItemMutation.isPending,
     isItineraryLoading:
-      itineraryQuery.isLoading || (!!user?.uid && !hasRealtimeSnapshot),
+      itineraryQuery.isLoading ||
+      (!!user?.uid && !!calendarOwnerId && !hasRealtimeSnapshot),
     isUpdatingItineraryItem: updateItineraryItemMutation.isPending,
     updateItineraryItem: updateItineraryItemMutation.mutateAsync,
   };
