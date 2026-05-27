@@ -37,7 +37,7 @@ export default async function RootLayout({
               <I18nProvider>
                 <AppHeader />
                 <Separator />
-                <div className="container md:px-24 mx-auto p-4">{children}</div>
+                <div className="container mx-auto p-4">{children}</div>
                 <Toaster position="top-center" />
               </I18nProvider>
             </QueryProvider>

@@ -12,7 +12,6 @@ import {
   PencilIcon,
   PlusIcon,
   Share2Icon,
-  TagsIcon,
   Trash2Icon,
 } from "lucide-react";
 import {
@@ -76,6 +75,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -91,10 +91,6 @@ import {
   CalendarShareError,
   type CalendarSummary,
 } from "@/services/calendar-sharing-service";
-import {
-  type ItineraryCategory,
-  ItineraryCategoryError,
-} from "@/services/itinerary-category-service";
 import type {
   ItineraryItem,
   SaveItineraryItemInput,
@@ -104,6 +100,7 @@ import {
   useItineraryUiStore,
 } from "@/stores/itinerary-ui-store";
 import "./itinerary-calendar.css";
+import { Separator } from "../ui/separator";
 
 type CalendarEvent = {
   allDay: boolean;
@@ -220,14 +217,6 @@ function getCalendarErrorMessage(error: unknown, t: TranslationFn) {
   return t("calendarManager.errors.generic");
 }
 
-function getCategoryErrorMessage(error: unknown, t: TranslationFn) {
-  if (error instanceof ItineraryCategoryError) {
-    return t(`categoryManager.errors.${error.code}`);
-  }
-
-  return t("categoryManager.errors.generic");
-}
-
 function getReadableTextColor(color: string | null) {
   if (!color?.startsWith("#") || color.length !== 7) {
     return "var(--background)";
@@ -314,7 +303,10 @@ function ItineraryToolbar({
             <SelectContent>
               <SelectGroup>
                 {calendars.map((calendar) => (
-                  <SelectItem key={calendar.id} value={calendar.id}>
+                  <SelectItem
+                    key={calendar.id}
+                    value={calendar.id}
+                  >
                     <span className="flex min-w-0 items-center gap-2">
                       <span className="truncate">
                         {getCalendarLabel(calendar, t)}
@@ -341,7 +333,11 @@ function ItineraryToolbar({
             </Button>
           ) : null}
           {canShareCalendar ? (
-            <Button onClick={onOpenShareDialog} type="button" variant="outline">
+            <Button
+              onClick={onOpenShareDialog}
+              type="button"
+              variant="outline"
+            >
               <Share2Icon data-icon="inline-start" />
               {t("share.open")}
             </Button>
@@ -365,7 +361,6 @@ function ItineraryToolbar({
             >
               <ChevronLeftIcon />
             </Button>
-            <ButtonGroupSeparator />
             <Button
               aria-label={t("toolbar.next")}
               onClick={() => onNavigate("NEXT")}
@@ -394,11 +389,15 @@ function ItineraryToolbar({
           variant="outline"
         >
           {TIME_GRID_STEPS.map((step) => (
-            <ToggleGroupItem key={step} value={String(step)}>
+            <ToggleGroupItem
+              key={step}
+              value={String(step)}
+            >
               {t(`interval.${step}`)}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
+        <Separator orientation="vertical" />
         <ToggleGroup
           aria-label={t("toolbar.viewSwitcher")}
           className="flex-wrap"
@@ -413,12 +412,19 @@ function ItineraryToolbar({
           variant="outline"
         >
           {CALENDAR_VIEWS.map((calendarView) => (
-            <ToggleGroupItem key={calendarView} value={calendarView}>
+            <ToggleGroupItem
+              key={calendarView}
+              value={calendarView}
+            >
               {t(`views.${calendarView}`)}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-        <Button disabled={!canCreateItem} onClick={onCreate} type="button">
+        <Button
+          disabled={!canCreateItem}
+          onClick={onCreate}
+          type="button"
+        >
           <PlusIcon data-icon="inline-start" />
           {t("add")}
         </Button>
@@ -474,16 +480,7 @@ export function ItineraryCalendar() {
     isUpdatingItineraryItem,
     updateItineraryItem,
   } = useItinerary(selectedCalendar);
-  const {
-    categories,
-    categoriesRealtimeError,
-    createCategory,
-    deleteCategory,
-    isCreatingCategory,
-    isDeletingCategory,
-    isUpdatingCategory,
-    updateCategory,
-  } = useItineraryCategories(selectedCalendar);
+  const { categories } = useItineraryCategories(selectedCalendar);
   const calendarView = useItineraryUiStore((state) => state.calendarView);
   const categoryFilterIds = useItineraryUiStore((state) =>
     selectedCalendarId
@@ -497,12 +494,12 @@ export function ItineraryCalendar() {
       : true,
   );
   const setCalendarView = useItineraryUiStore((state) => state.setCalendarView);
-  const setCategoryFilter = useItineraryUiStore(
+  const _setCategoryFilter = useItineraryUiStore(
     (state) => state.setCategoryFilter,
   );
   const setSelectedDate = useItineraryUiStore((state) => state.setSelectedDate);
   const setTimeGridStep = useItineraryUiStore((state) => state.setTimeGridStep);
-  const setUncategorizedFilter = useItineraryUiStore(
+  const _setUncategorizedFilter = useItineraryUiStore(
     (state) => state.setUncategorizedFilter,
   );
   const timeGridStep = useItineraryUiStore((state) => state.timeGridStep);
@@ -510,7 +507,7 @@ export function ItineraryCalendar() {
     () => readStoredDate(selectedDateValue),
     [selectedDateValue],
   );
-  const dateLocale = locale === "en" ? enUS : idLocale;
+  const _dateLocale = locale === "en" ? enUS : idLocale;
   const calendarStyle = useMemo<ItineraryCalendarStyle>(
     () => ({
       "--itinerary-timeslots-per-hour": TIMESLOTS_BY_STEP[timeGridStep],
@@ -529,13 +526,7 @@ export function ItineraryCalendar() {
   const [editingCalendarId, setEditingCalendarId] = useState<string | null>(
     null,
   );
-  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
-  const [categoryError, setCategoryError] = useState("");
-  const [categoryName, setCategoryName] = useState("");
-  const [categoryColor, setCategoryColor] = useState("#2563eb");
-  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
-    null,
-  );
+
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const [shareError, setShareError] = useState("");
@@ -553,7 +544,7 @@ export function ItineraryCalendar() {
     : "";
   const isSaving = isCreatingItineraryItem || isUpdatingItineraryItem;
   const isSavingCalendar = isCreatingCalendar || isUpdatingCalendar;
-  const isSavingCategory = isCreatingCategory || isUpdatingCategory;
+
   const hasActiveCalendars = calendars.length > 0;
   const categoryMap = useMemo(
     () => new Map(categories.map((category) => [category.id, category])),
@@ -609,16 +600,6 @@ export function ItineraryCalendar() {
       visibleCategoryIdSet,
     ],
   );
-  const upcomingEvents = useMemo(
-    () =>
-      events
-        .filter((event) => event.end >= new Date())
-        .sort((firstEvent, secondEvent) => {
-          return firstEvent.start.getTime() - secondEvent.start.getTime();
-        })
-        .slice(0, 5),
-    [events],
-  );
 
   useEffect(() => {
     if (itineraryRealtimeError) {
@@ -631,12 +612,6 @@ export function ItineraryCalendar() {
       toast.error(tToast("calendarSharingRealtimeFailed"));
     }
   }, [calendarsRealtimeError, tToast]);
-
-  useEffect(() => {
-    if (categoriesRealtimeError) {
-      toast.error(tToast("categoryRealtimeFailed"));
-    }
-  }, [categoriesRealtimeError, tToast]);
 
   const openCreateDialog = useCallback(() => {
     if (!canEditSelectedCalendar) {
@@ -914,84 +889,6 @@ export function ItineraryCalendar() {
     }
   }
 
-  async function handleCategorySubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    try {
-      setCategoryError("");
-
-      if (editingCategoryId) {
-        await updateCategory({
-          categoryId: editingCategoryId,
-          color: categoryColor,
-          name: categoryName,
-        });
-        toast.success(tToast("categoryUpdateSuccess"));
-      } else {
-        await createCategory({
-          color: categoryColor,
-          name: categoryName,
-        });
-        toast.success(tToast("categoryCreateSuccess"));
-      }
-
-      setCategoryColor("#2563eb");
-      setCategoryName("");
-      setEditingCategoryId(null);
-    } catch (error) {
-      setCategoryError(getCategoryErrorMessage(error, t));
-      toast.error(
-        editingCategoryId
-          ? tToast("categoryUpdateFailed")
-          : tToast("categoryCreateFailed"),
-      );
-    }
-  }
-
-  function handleStartCategoryEdit(category: ItineraryCategory) {
-    setCategoryColor(category.color);
-    setCategoryName(category.name);
-    setCategoryError("");
-    setEditingCategoryId(category.id);
-  }
-
-  async function handleDeleteCategory(categoryId: string) {
-    try {
-      await deleteCategory(categoryId);
-      toast.success(tToast("categoryDeleteSuccess"));
-
-      if (editingCategoryId === categoryId) {
-        setCategoryColor("#2563eb");
-        setCategoryName("");
-        setEditingCategoryId(null);
-      }
-    } catch {
-      toast.error(tToast("categoryDeleteFailed"));
-    }
-  }
-
-  function handleCategoryFilterChange(categoryId: string, isVisible: boolean) {
-    if (!selectedCalendarId) {
-      return;
-    }
-
-    const nextCategoryIds = isVisible
-      ? [...new Set([...visibleCategoryIds, categoryId])]
-      : visibleCategoryIds.filter((visibleCategoryId) => {
-          return visibleCategoryId !== categoryId;
-        });
-
-    setCategoryFilter(selectedCalendarId, nextCategoryIds);
-  }
-
-  function handleUncategorizedFilterChange(isVisible: boolean) {
-    if (!selectedCalendarId) {
-      return;
-    }
-
-    setUncategorizedFilter(selectedCalendarId, isVisible);
-  }
-
   async function handleShareRoleChange(shareId: string, role: CalendarRole) {
     try {
       await updateCalendarShareRole({ shareId, role });
@@ -1012,11 +909,9 @@ export function ItineraryCalendar() {
 
   return (
     <main className="flex min-w-0 flex-col gap-5">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          {t("description")}
-        </p>
+      <div className="flex items-center gap-2.5">
+        <SidebarTrigger className="-ml-1 mt-1 text-muted-foreground hover:text-foreground transition-colors" />
+
         {selectedCalendarDetail ? (
           <p className="text-xs text-muted-foreground">
             {t("calendarSelector.current", {
@@ -1026,15 +921,11 @@ export function ItineraryCalendar() {
         ) : null}
       </div>
 
-      {itineraryRealtimeError ||
-      calendarsRealtimeError ||
-      categoriesRealtimeError ? (
+      {itineraryRealtimeError || calendarsRealtimeError ? (
         <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
           {itineraryRealtimeError
             ? t("realtimeError")
-            : categoriesRealtimeError
-              ? t("category.realtimeError")
-              : t("share.realtimeError")}
+            : t("share.realtimeError")}
         </div>
       ) : null}
 
@@ -1111,142 +1002,10 @@ export function ItineraryCalendar() {
       ) : null}
 
       {hasActiveCalendars ? (
-        <div
-          className={cn(
-            "grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]",
-            isItineraryLoading && "hidden",
-          )}
-        >
-          <aside className="flex min-w-0 flex-col gap-5 rounded-md border p-3 xl:sticky xl:top-4 xl:self-start">
-            <div className="flex min-w-0 flex-col gap-1">
-              <p className="text-sm font-medium">{t("sidebar.title")}</p>
-              <p className="truncate text-xs text-muted-foreground">
-                {selectedCalendar
-                  ? getCalendarLabel(selectedCalendar, t)
-                  : t("calendarSelector.placeholder")}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-sm font-medium">
-                  {t("sidebar.categories")}
-                </h2>
-                {canEditSelectedCalendar ? (
-                  <Button
-                    onClick={() => {
-                      setCategoryColor("#2563eb");
-                      setCategoryError("");
-                      setCategoryName("");
-                      setEditingCategoryId(null);
-                      setCategoryDialogOpen(true);
-                    }}
-                    size="sm"
-                    type="button"
-                    variant="outline"
-                  >
-                    <TagsIcon data-icon="inline-start" />
-                    {t("categoryManager.open")}
-                  </Button>
-                ) : null}
-              </div>
-
-              <FieldGroup data-slot="checkbox-group">
-                {categories.map((category) => (
-                  <Field key={category.id} orientation="horizontal">
-                    <Checkbox
-                      checked={visibleCategoryIdSet.has(category.id)}
-                      id={`category-filter-${category.id}`}
-                      onCheckedChange={(checked) =>
-                        handleCategoryFilterChange(
-                          category.id,
-                          checked === true,
-                        )
-                      }
-                    />
-                    <FieldContent>
-                      <FieldLabel
-                        className="min-w-0"
-                        htmlFor={`category-filter-${category.id}`}
-                      >
-                        <span
-                          aria-hidden
-                          className="size-2.5 shrink-0 rounded-full"
-                          style={{ backgroundColor: category.color }}
-                        />
-                        <span className="truncate">{category.name}</span>
-                      </FieldLabel>
-                    </FieldContent>
-                  </Field>
-                ))}
-                <Field orientation="horizontal">
-                  <Checkbox
-                    checked={isUncategorizedFilterVisible}
-                    id="category-filter-uncategorized"
-                    onCheckedChange={(checked) =>
-                      handleUncategorizedFilterChange(checked === true)
-                    }
-                  />
-                  <FieldContent>
-                    <FieldLabel htmlFor="category-filter-uncategorized">
-                      <span
-                        aria-hidden
-                        className="size-2.5 shrink-0 rounded-full bg-muted-foreground"
-                      />
-                      {t("category.uncategorized")}
-                    </FieldLabel>
-                  </FieldContent>
-                </Field>
-              </FieldGroup>
-
-              {categories.length === 0 ? (
-                <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-                  {t("sidebar.categoriesEmpty")}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <h2 className="text-sm font-medium">{t("sidebar.upcoming")}</h2>
-              {upcomingEvents.length === 0 ? (
-                <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-                  {t("sidebar.upcomingEmpty")}
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {upcomingEvents.map((event) => (
-                    <div
-                      className="flex min-w-0 gap-2 rounded-md border p-2"
-                      key={event.id}
-                    >
-                      <span
-                        aria-hidden
-                        className="mt-1 size-2.5 shrink-0 rounded-full"
-                        style={{
-                          backgroundColor:
-                            event.categoryColor ?? DEFAULT_EVENT_COLOR,
-                        }}
-                      />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">
-                          {event.title}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {format(event.start, "MMM d, HH:mm", {
-                            locale: dateLocale,
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </aside>
-
+        <div className={cn("w-full", isItineraryLoading && "hidden")}>
           <section
             aria-label={t("calendarAriaLabel")}
-            className="tabi-itinerary-calendar min-w-0"
+            className="tabi-itinerary-calendar min-w-0 w-full"
             style={calendarStyle}
           >
             <DragAndDropCalendar
@@ -1287,9 +1046,15 @@ export function ItineraryCalendar() {
         </div>
       ) : null}
 
-      <Dialog onOpenChange={setDialogOpen} open={dialogOpen}>
+      <Dialog
+        onOpenChange={setDialogOpen}
+        open={dialogOpen}
+      >
         <DialogContent className="sm:max-w-xl">
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={handleSubmit}
+          >
             <DialogHeader>
               <DialogTitle>
                 {!canEditSelectedCalendar && draft.id
@@ -1401,7 +1166,10 @@ export function ItineraryCalendar() {
                           {t("category.uncategorized")}
                         </SelectItem>
                         {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
+                          <SelectItem
+                            key={category.id}
+                            value={category.id}
+                          >
                             {category.name}
                           </SelectItem>
                         ))}
@@ -1454,7 +1222,10 @@ export function ItineraryCalendar() {
 
             <DialogFooter>
               {!canEditSelectedCalendar ? (
-                <Button onClick={() => setDialogOpen(false)} type="button">
+                <Button
+                  onClick={() => setDialogOpen(false)}
+                  type="button"
+                >
                   {t("close")}
                 </Button>
               ) : null}
@@ -1491,7 +1262,10 @@ export function ItineraryCalendar() {
         </DialogContent>
       </Dialog>
 
-      <Dialog onOpenChange={setCalendarDialogOpen} open={calendarDialogOpen}>
+      <Dialog
+        onOpenChange={setCalendarDialogOpen}
+        open={calendarDialogOpen}
+      >
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>{t("calendarManager.title")}</DialogTitle>
@@ -1500,7 +1274,10 @@ export function ItineraryCalendar() {
             </DialogDescription>
           </DialogHeader>
 
-          <form className="flex flex-col gap-4" onSubmit={handleCalendarSubmit}>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={handleCalendarSubmit}
+          >
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="calendar-title">
@@ -1548,7 +1325,10 @@ export function ItineraryCalendar() {
                   {t("calendarManager.cancelEdit")}
                 </Button>
               ) : null}
-              <Button disabled={isSavingCalendar} type="submit">
+              <Button
+                disabled={isSavingCalendar}
+                type="submit"
+              >
                 {isSavingCalendar ? (
                   <Spinner data-icon="inline-start" />
                 ) : (
@@ -1647,149 +1427,20 @@ export function ItineraryCalendar() {
         </DialogContent>
       </Dialog>
 
-      <Dialog onOpenChange={setCategoryDialogOpen} open={categoryDialogOpen}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>{t("categoryManager.title")}</DialogTitle>
-            <DialogDescription>
-              {t("categoryManager.description")}
-            </DialogDescription>
-          </DialogHeader>
-
-          <form className="flex flex-col gap-4" onSubmit={handleCategorySubmit}>
-            <FieldGroup>
-              <div className="grid gap-4 md:grid-cols-[1fr_5rem]">
-                <Field>
-                  <FieldLabel htmlFor="category-name">
-                    {t("categoryManager.name")}
-                  </FieldLabel>
-                  <Input
-                    disabled={!canEditSelectedCalendar || isSavingCategory}
-                    id="category-name"
-                    onChange={(event) => {
-                      setCategoryName(event.target.value);
-                      setCategoryError("");
-                    }}
-                    placeholder={t("categoryManager.namePlaceholder")}
-                    value={categoryName}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="category-color">
-                    {t("categoryManager.color")}
-                  </FieldLabel>
-                  <Input
-                    className="h-10 p-1"
-                    disabled={!canEditSelectedCalendar || isSavingCategory}
-                    id="category-color"
-                    onChange={(event) => setCategoryColor(event.target.value)}
-                    type="color"
-                    value={categoryColor}
-                  />
-                </Field>
-              </div>
-              <FieldError>{categoryError}</FieldError>
-            </FieldGroup>
-            <DialogFooter>
-              {editingCategoryId ? (
-                <Button
-                  onClick={() => {
-                    setCategoryColor("#2563eb");
-                    setCategoryError("");
-                    setCategoryName("");
-                    setEditingCategoryId(null);
-                  }}
-                  type="button"
-                  variant="ghost"
-                >
-                  {t("categoryManager.cancelEdit")}
-                </Button>
-              ) : null}
-              <Button
-                disabled={!canEditSelectedCalendar || isSavingCategory}
-                type="submit"
-              >
-                {isSavingCategory ? (
-                  <Spinner data-icon="inline-start" />
-                ) : (
-                  <PlusIcon data-icon="inline-start" />
-                )}
-                {editingCategoryId
-                  ? t("categoryManager.save")
-                  : t("categoryManager.create")}
-              </Button>
-            </DialogFooter>
-          </form>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium">
-              {t("categoryManager.yourCategories")}
-            </h3>
-            {categories.length === 0 ? (
-              <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-                {t("categoryManager.empty")}
-              </p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {categories.map((category) => (
-                  <div
-                    className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between"
-                    key={category.id}
-                  >
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span
-                        aria-hidden
-                        className="size-3 shrink-0 rounded-full"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <p className="truncate text-sm font-medium">
-                        {category.name}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        disabled={!canEditSelectedCalendar || isSavingCategory}
-                        onClick={() => handleStartCategoryEdit(category)}
-                        type="button"
-                        variant="outline"
-                      >
-                        <PencilIcon data-icon="inline-start" />
-                        {t("categoryManager.edit")}
-                      </Button>
-                      <Button
-                        disabled={
-                          !canEditSelectedCalendar ||
-                          isDeletingCategory ||
-                          isSavingCategory
-                        }
-                        onClick={() => void handleDeleteCategory(category.id)}
-                        type="button"
-                        variant="destructive"
-                      >
-                        {isDeletingCategory ? (
-                          <Spinner data-icon="inline-start" />
-                        ) : (
-                          <Trash2Icon data-icon="inline-start" />
-                        )}
-                        {t("categoryManager.delete")}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog onOpenChange={setShareDialogOpen} open={shareDialogOpen}>
+      <Dialog
+        onOpenChange={setShareDialogOpen}
+        open={shareDialogOpen}
+      >
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>{t("share.title")}</DialogTitle>
             <DialogDescription>{t("share.description")}</DialogDescription>
           </DialogHeader>
 
-          <form className="flex flex-col gap-4" onSubmit={handleShareSubmit}>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={handleShareSubmit}
+          >
             <FieldGroup>
               <div className="grid gap-4 md:grid-cols-[1fr_9rem]">
                 <Field>
@@ -1821,7 +1472,10 @@ export function ItineraryCalendar() {
                     <SelectContent>
                       <SelectGroup>
                         {CALENDAR_ROLES.map((role) => (
-                          <SelectItem key={role} value={role}>
+                          <SelectItem
+                            key={role}
+                            value={role}
+                          >
                             {t(`access.${role}`)}
                           </SelectItem>
                         ))}
@@ -1834,7 +1488,10 @@ export function ItineraryCalendar() {
             </FieldGroup>
 
             <DialogFooter>
-              <Button disabled={isSharingCalendar} type="submit">
+              <Button
+                disabled={isSharingCalendar}
+                type="submit"
+              >
                 {isSharingCalendar ? (
                   <Spinner data-icon="inline-start" />
                 ) : (
@@ -1886,7 +1543,10 @@ export function ItineraryCalendar() {
                         <SelectContent>
                           <SelectGroup>
                             {CALENDAR_ROLES.map((role) => (
-                              <SelectItem key={role} value={role}>
+                              <SelectItem
+                                key={role}
+                                value={role}
+                              >
                                 {t(`access.${role}`)}
                               </SelectItem>
                             ))}
