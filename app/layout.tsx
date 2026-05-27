@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
+import { ItineraryShell } from "@/components/itinerary/itinerary-shell";
 
 export const metadata: Metadata = {
   title: "Tabi",
@@ -35,10 +36,12 @@ export default async function RootLayout({
           <AuthProvider>
             <QueryProvider>
               <I18nProvider>
-                <AppHeader />
-                <Separator />
-                <div className="container mx-auto p-4">{children}</div>
-                <Toaster position="top-center" />
+                <ItineraryShell>
+                  <AppHeader />
+                  <Separator />
+                  <div className="container mx-auto p-4">{children}</div>
+                  <Toaster position="top-center" />
+                </ItineraryShell>
               </I18nProvider>
             </QueryProvider>
           </AuthProvider>

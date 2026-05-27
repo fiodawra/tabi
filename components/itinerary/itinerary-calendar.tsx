@@ -1,453 +1,63 @@
 "use client";
 
-import { format, getDay, isSameDay, parse, startOfWeek } from "date-fns";
-import { enUS, id as idLocale } from "date-fns/locale";
-import {
-  CalendarDaysIcon,
-  CalendarPlusIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ListFilterIcon,
-  MapPinIcon,
-  PencilIcon,
-  PlusIcon,
-  Share2Icon,
-  Trash2Icon,
-} from "lucide-react";
-import {
-  type CSSProperties,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import {
-  Calendar as BigCalendar,
-  dateFnsLocalizer,
-  type EventProps,
-  type SlotInfo,
-  type ToolbarProps,
-  type View,
-  Views,
-} from "react-big-calendar";
-import withDragAndDrop, {
-  type EventInteractionArgs,
-} from "react-big-calendar/lib/addons/dragAndDrop";
-import { toast } from "sonner";
-import { ItineraryDateTimePicker } from "@/components/itinerary/itinerary-date-time-picker";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  ButtonGroup,
-  ButtonGroupSeparator,
-} from "@/components/ui/button-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { type CSSProperties, useCallback, useMemo, useState } from "react";
+import { type SlotInfo, type ToolbarProps, Views } from "react-big-calendar";
+import type { EventInteractionArgs } from "react-big-calendar/lib/addons/dragAndDrop";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useCalendars } from "@/hooks/use-calendars";
 import { useLocale, useTranslations } from "@/hooks/use-i18n";
 import { useItinerary } from "@/hooks/use-itinerary";
 import { useItineraryCategories } from "@/hooks/use-itinerary-categories";
+import { useRealtimeErrorToast } from "@/hooks/use-realtime-error-toast";
+import { useToastOperation } from "@/hooks/use-toast-operation";
 import { cn } from "@/lib/utils";
-import {
-  type CalendarRole,
-  type CalendarShare,
-  CalendarShareError,
-  type CalendarSummary,
-} from "@/services/calendar-sharing-service";
 import type {
-  ItineraryItem,
-  SaveItineraryItemInput,
-} from "@/services/itinerary-service";
-import {
-  type TimeGridStep,
-  useItineraryUiStore,
-} from "@/stores/itinerary-ui-store";
+  CalendarRole,
+  CalendarSummary,
+} from "@/services/calendar-sharing-service";
+import type { SaveItineraryItemInput } from "@/services/itinerary-service";
+import { useItineraryUiStore } from "@/stores/itinerary-ui-store";
+import { CalendarEventContent } from "./calendar-event-content";
+import { CalendarManagerDialog } from "./calendar-manager-dialog";
+import { CalendarShareDialog } from "./calendar-share-dialog";
 import "./itinerary-calendar.css";
-import { Separator } from "../ui/separator";
-
-type CalendarEvent = {
-  allDay: boolean;
-  categoryColor: string | null;
-  categoryId: string | null;
-  categoryName: string | null;
-  end: Date;
-  id: string;
-  location: string;
-  resource: ItineraryItem;
-  start: Date;
-  title: string;
-};
-
-type ItineraryDraft = {
-  allDay: boolean;
-  category: string | null;
-  description: string;
-  endAt: Date;
-  id?: string;
-  location: string;
-  startAt: Date;
-  title: string;
-};
-
-type TranslationFn = ReturnType<typeof useTranslations>;
-
-type ItineraryToolbarProps = ToolbarProps<CalendarEvent> & {
-  canCreateItem: boolean;
-  canManageCalendars: boolean;
-  canShareCalendar: boolean;
-  calendars: CalendarSummary[];
-  onCreate: () => void;
-  onOpenCalendarDialog: () => void;
-  onOpenShareDialog: () => void;
-  onSelectCalendar: (calendarId: string) => void;
-  selectedCalendarId: string | null;
-  setTimeGridStep: (step: TimeGridStep) => void;
-  t: TranslationFn;
-  timeGridStep: TimeGridStep;
-};
-
-const localizer = dateFnsLocalizer({
-  format,
-  getDay,
-  locales: {
-    en: enUS,
-    id: idLocale,
-    "id-x-gaul": idLocale,
-  },
-  parse,
-  startOfWeek,
-});
-
-const DragAndDropCalendar = withDragAndDrop<CalendarEvent>(BigCalendar);
-const CALENDAR_VIEWS: View[] = [
-  Views.MONTH,
-  Views.WEEK,
-  Views.DAY,
-  Views.AGENDA,
-];
-const TIME_GRID_STEPS: TimeGridStep[] = [15, 30, 60];
-const TIMESLOTS_BY_STEP: Record<TimeGridStep, number> = {
-  15: 4,
-  30: 2,
-  60: 1,
-};
-const CALENDAR_ROLES: CalendarRole[] = ["viewer", "editor"];
-const UNCATEGORIZED_VALUE = "__uncategorized__";
-const DEFAULT_EVENT_COLOR = "var(--muted-foreground)";
+import {
+  CALENDAR_VIEWS,
+  DEFAULT_EVENT_COLOR,
+  DragAndDropCalendar,
+  localizer,
+  TIMESLOTS_BY_STEP,
+} from "./itinerary-constants";
+import {
+  ItineraryItemsEmptyState,
+  NoCalendarEmptyState,
+} from "./itinerary-empty-state";
+import { ItineraryItemDialog } from "./itinerary-item-dialog";
+import { ItineraryRealtimeAlert } from "./itinerary-realtime-alert";
+import { useRegisterItinerarySidebarActions } from "./itinerary-sidebar-actions";
+import { ItineraryToolbar } from "./itinerary-toolbar";
+import type { CalendarEvent, ItineraryDraft } from "./itinerary-types";
+import {
+  addHours,
+  createDraftFromDates,
+  createDraftFromItem,
+  createStartDateForSelection,
+  getCalendarDetail,
+  getCalendarErrorMessage,
+  getReadableTextColor,
+  getShareErrorMessage,
+  readStoredDate,
+} from "./itinerary-utils";
+import { useItineraryEvents } from "./use-itinerary-events";
 
 type ItineraryCalendarStyle = CSSProperties & {
   "--itinerary-timeslots-per-hour": number;
 };
 
-function readStoredDate(value: string) {
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime()) ? new Date() : date;
-}
-
-function addHours(date: Date, hours: number) {
-  const nextDate = new Date(date);
-  nextDate.setHours(nextDate.getHours() + hours);
-
-  return nextDate;
-}
-
-function getCalendarLabel(calendar: CalendarSummary, t: TranslationFn) {
-  return calendar.label || calendar.ownerEmail || t("calendarSelector.shared");
-}
-
-function getCalendarDetail(calendar: CalendarSummary, t: TranslationFn) {
-  if (calendar.access === "owner") {
-    return calendar.ownerEmail || t("calendarSelector.owner");
-  }
-
-  return t(`access.${calendar.access}`);
-}
-
-function getShareErrorMessage(error: unknown, t: TranslationFn) {
-  if (error instanceof CalendarShareError) {
-    return t(`share.errors.${error.code}`);
-  }
-
-  return t("share.errors.generic");
-}
-
-function getCalendarErrorMessage(error: unknown, t: TranslationFn) {
-  if (error instanceof CalendarShareError) {
-    return t(`calendarManager.errors.${error.code}`);
-  }
-
-  return t("calendarManager.errors.generic");
-}
-
-function getReadableTextColor(color: string | null) {
-  if (!color?.startsWith("#") || color.length !== 7) {
-    return "var(--background)";
-  }
-
-  const red = Number.parseInt(color.slice(1, 3), 16);
-  const green = Number.parseInt(color.slice(3, 5), 16);
-  const blue = Number.parseInt(color.slice(5, 7), 16);
-  const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
-
-  return luminance > 0.66 ? "var(--foreground)" : "var(--background)";
-}
-
-function createStartDateForSelection(selectedDate: Date) {
-  const now = new Date();
-  const startAt = new Date(selectedDate);
-
-  if (isSameDay(startAt, now)) {
-    startAt.setHours(now.getHours() + 1, 0, 0, 0);
-    return startAt;
-  }
-
-  startAt.setHours(9, 0, 0, 0);
-  return startAt;
-}
-
-function createDraftFromDates(startAt: Date, endAt: Date): ItineraryDraft {
-  return {
-    allDay: false,
-    category: null,
-    description: "",
-    endAt,
-    location: "",
-    startAt,
-    title: "",
-  };
-}
-
-function createDraftFromItem(item: ItineraryItem): ItineraryDraft {
-  return {
-    id: item.id,
-    allDay: item.allDay,
-    category: item.category,
-    description: item.description,
-    endAt: item.endAt,
-    location: item.location,
-    startAt: item.startAt,
-    title: item.title,
-  };
-}
-
-function ItineraryToolbar({
-  calendars,
-  canCreateItem,
-  canManageCalendars,
-  canShareCalendar,
-  label,
-  onCreate,
-  onOpenCalendarDialog,
-  onNavigate,
-  onOpenShareDialog,
-  onSelectCalendar,
-  onView,
-  selectedCalendarId,
-  setTimeGridStep,
-  t,
-  timeGridStep,
-  view,
-}: ItineraryToolbarProps) {
-  return (
-    <div className="mb-3 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-      <div className="flex min-w-0 flex-col gap-2">
-        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-          <Select
-            onValueChange={onSelectCalendar}
-            value={selectedCalendarId ?? calendars.at(0)?.id}
-          >
-            <SelectTrigger
-              aria-label={t("calendarSelector.ariaLabel")}
-              className="w-full sm:w-64"
-            >
-              <SelectValue placeholder={t("calendarSelector.placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {calendars.map((calendar) => (
-                  <SelectItem
-                    key={calendar.id}
-                    value={calendar.id}
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span className="truncate">
-                        {getCalendarLabel(calendar, t)}
-                      </span>
-                      <Badge variant="secondary">
-                        {calendar.access === "owner"
-                          ? t("access.owner")
-                          : t(`access.${calendar.access}`)}
-                      </Badge>
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          {canManageCalendars ? (
-            <Button
-              onClick={onOpenCalendarDialog}
-              type="button"
-              variant="outline"
-            >
-              <CalendarPlusIcon data-icon="inline-start" />
-              {t("calendarManager.open")}
-            </Button>
-          ) : null}
-          {canShareCalendar ? (
-            <Button
-              onClick={onOpenShareDialog}
-              type="button"
-              variant="outline"
-            >
-              <Share2Icon data-icon="inline-start" />
-              {t("share.open")}
-            </Button>
-          ) : null}
-        </div>
-        <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
-          <ButtonGroup aria-label={t("toolbar.navigation")}>
-            <Button
-              onClick={() => onNavigate("TODAY")}
-              type="button"
-              variant="outline"
-            >
-              {t("toolbar.today")}
-            </Button>
-            <Button
-              aria-label={t("toolbar.previous")}
-              onClick={() => onNavigate("PREV")}
-              size="icon"
-              type="button"
-              variant="outline"
-            >
-              <ChevronLeftIcon />
-            </Button>
-            <Button
-              aria-label={t("toolbar.next")}
-              onClick={() => onNavigate("NEXT")}
-              size="icon"
-              type="button"
-              variant="outline"
-            >
-              <ChevronRightIcon />
-            </Button>
-          </ButtonGroup>
-          <h2 className="truncate text-lg font-semibold">{label}</h2>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
-        <ToggleGroup
-          aria-label={t("toolbar.intervalSwitcher")}
-          className="flex-wrap"
-          onValueChange={(nextStep) => {
-            if (nextStep) {
-              setTimeGridStep(Number(nextStep) as TimeGridStep);
-            }
-          }}
-          size="sm"
-          type="single"
-          value={String(timeGridStep)}
-          variant="outline"
-        >
-          {TIME_GRID_STEPS.map((step) => (
-            <ToggleGroupItem
-              key={step}
-              value={String(step)}
-            >
-              {t(`interval.${step}`)}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-        <Separator orientation="vertical" />
-        <ToggleGroup
-          aria-label={t("toolbar.viewSwitcher")}
-          className="flex-wrap"
-          onValueChange={(nextView) => {
-            if (nextView) {
-              onView(nextView as View);
-            }
-          }}
-          size="sm"
-          type="single"
-          value={view}
-          variant="outline"
-        >
-          {CALENDAR_VIEWS.map((calendarView) => (
-            <ToggleGroupItem
-              key={calendarView}
-              value={calendarView}
-            >
-              {t(`views.${calendarView}`)}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-        <Button
-          disabled={!canCreateItem}
-          onClick={onCreate}
-          type="button"
-        >
-          <PlusIcon data-icon="inline-start" />
-          {t("add")}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function CalendarEventContent({ event }: EventProps<CalendarEvent>) {
-  return (
-    <div className="tabi-calendar-event-content">
-      <span className="tabi-calendar-event-title">{event.title}</span>
-      {event.location ? (
-        <span className="tabi-calendar-event-location">{event.location}</span>
-      ) : null}
-    </div>
-  );
-}
-
 export function ItineraryCalendar() {
   const t = useTranslations("ItineraryPage");
-  const tToast = useTranslations("OperationToast");
   const locale = useLocale();
+  const runToastOperation = useToastOperation();
   const {
     calendars,
     archivedCalendars,
@@ -464,7 +74,6 @@ export function ItineraryCalendar() {
     selectedCalendar,
     selectedCalendarId,
     selectedCalendarOutgoingShares,
-    setSelectedCalendarId,
     shareCalendar,
     updateCalendar,
     updateCalendarShareRole,
@@ -487,33 +96,32 @@ export function ItineraryCalendar() {
       ? state.categoryFiltersByCalendarId[selectedCalendarId]
       : undefined,
   );
-  const selectedDateValue = useItineraryUiStore((state) => state.selectedDate);
   const isUncategorizedFilterVisible = useItineraryUiStore((state) =>
     selectedCalendarId
       ? (state.uncategorizedFiltersByCalendarId[selectedCalendarId] ?? true)
       : true,
   );
+  const selectedDateValue = useItineraryUiStore((state) => state.selectedDate);
   const setCalendarView = useItineraryUiStore((state) => state.setCalendarView);
-  const _setCategoryFilter = useItineraryUiStore(
-    (state) => state.setCategoryFilter,
-  );
   const setSelectedDate = useItineraryUiStore((state) => state.setSelectedDate);
   const setTimeGridStep = useItineraryUiStore((state) => state.setTimeGridStep);
-  const _setUncategorizedFilter = useItineraryUiStore(
-    (state) => state.setUncategorizedFilter,
-  );
   const timeGridStep = useItineraryUiStore((state) => state.timeGridStep);
   const selectedDate = useMemo(
     () => readStoredDate(selectedDateValue),
     [selectedDateValue],
   );
-  const _dateLocale = locale === "en" ? enUS : idLocale;
   const calendarStyle = useMemo<ItineraryCalendarStyle>(
     () => ({
       "--itinerary-timeslots-per-hour": TIMESLOTS_BY_STEP[timeGridStep],
     }),
     [timeGridStep],
   );
+  const { categoryMap, events } = useItineraryEvents({
+    categories,
+    categoryFilterIds,
+    isUncategorizedFilterVisible,
+    itineraryItems,
+  });
   const [draft, setDraft] = useState<ItineraryDraft>(() => {
     const startAt = createStartDateForSelection(selectedDate);
     return createDraftFromDates(startAt, addHours(startAt, 1));
@@ -526,7 +134,6 @@ export function ItineraryCalendar() {
   const [editingCalendarId, setEditingCalendarId] = useState<string | null>(
     null,
   );
-
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const [shareError, setShareError] = useState("");
@@ -535,7 +142,6 @@ export function ItineraryCalendar() {
   const canEditSelectedCalendar =
     selectedCalendar?.access === "owner" ||
     selectedCalendar?.access === "editor";
-  const canShareSelectedCalendar = selectedCalendar?.access === "owner";
   const ownedCalendars = calendars.filter(
     (calendar) => calendar.access === "owner",
   );
@@ -544,74 +150,20 @@ export function ItineraryCalendar() {
     : "";
   const isSaving = isCreatingItineraryItem || isUpdatingItineraryItem;
   const isSavingCalendar = isCreatingCalendar || isUpdatingCalendar;
-
   const hasActiveCalendars = calendars.length > 0;
-  const categoryMap = useMemo(
-    () => new Map(categories.map((category) => [category.id, category])),
-    [categories],
-  );
-  const visibleCategoryIds = useMemo(
-    () =>
-      categoryFilterIds?.filter((categoryId) => categoryMap.has(categoryId)) ??
-      categories.map((category) => category.id),
-    [categories, categoryFilterIds, categoryMap],
-  );
-  const visibleCategoryIdSet = useMemo(
-    () => new Set(visibleCategoryIds),
-    [visibleCategoryIds],
+
+  useRealtimeErrorToast(itineraryRealtimeError, "itineraryRealtimeFailed");
+  useRealtimeErrorToast(
+    calendarsRealtimeError,
+    "calendarSharingRealtimeFailed",
   );
 
-  const events = useMemo<CalendarEvent[]>(
-    () =>
-      itineraryItems
-        .filter((item) => {
-          const category = item.category
-            ? categoryMap.get(item.category)
-            : null;
-
-          if (!category) {
-            return isUncategorizedFilterVisible;
-          }
-
-          return visibleCategoryIdSet.has(category.id);
-        })
-        .map((item) => {
-          const category = item.category
-            ? categoryMap.get(item.category)
-            : null;
-
-          return {
-            id: item.id,
-            allDay: item.allDay,
-            categoryColor: category?.color ?? null,
-            categoryId: category?.id ?? null,
-            categoryName: category?.name ?? null,
-            end: item.endAt,
-            location: item.location,
-            resource: item,
-            start: item.startAt,
-            title: item.title,
-          };
-        }),
-    [
-      categoryMap,
-      isUncategorizedFilterVisible,
-      itineraryItems,
-      visibleCategoryIdSet,
-    ],
-  );
-
-  useEffect(() => {
-    if (itineraryRealtimeError) {
-      toast.error(tToast("itineraryRealtimeFailed"));
-    }
-  }, [itineraryRealtimeError, tToast]);
-
-  useEffect(() => {
-    if (calendarsRealtimeError) {
-      toast.error(tToast("calendarSharingRealtimeFailed"));
-    }
-  }, [calendarsRealtimeError, tToast]);
+  const resetCalendarForm = useCallback(() => {
+    setCalendarDescription("");
+    setCalendarTitle("");
+    setEditingCalendarId(null);
+    setCalendarError("");
+  }, []);
 
   const openCreateDialog = useCallback(() => {
     if (!canEditSelectedCalendar) {
@@ -646,47 +198,41 @@ export function ItineraryCalendar() {
     [calendarView, canEditSelectedCalendar],
   );
 
+  const openCalendarDialog = useCallback(() => {
+    resetCalendarForm();
+    setCalendarDialogOpen(true);
+  }, [resetCalendarForm]);
+
+  const openShareDialog = useCallback(() => {
+    setShareError("");
+    setShareDialogOpen(true);
+  }, []);
+
+  const sidebarActions = useMemo(
+    () => ({
+      onCreateItem: openCreateDialog,
+      onOpenCalendarDialog: openCalendarDialog,
+      onOpenShareDialog: openShareDialog,
+    }),
+    [openCalendarDialog, openCreateDialog, openShareDialog],
+  );
+
+  useRegisterItinerarySidebarActions(sidebarActions);
+
   const components = useMemo(
     () => ({
       event: CalendarEventContent,
       toolbar: (toolbarProps: ToolbarProps<CalendarEvent>) => (
         <ItineraryToolbar
           {...toolbarProps}
-          calendars={calendars}
-          canCreateItem={canEditSelectedCalendar}
-          canManageCalendars
-          canShareCalendar={canShareSelectedCalendar}
-          onCreate={openCreateDialog}
-          onOpenCalendarDialog={() => {
-            setCalendarError("");
-            setCalendarDescription("");
-            setCalendarTitle("");
-            setEditingCalendarId(null);
-            setCalendarDialogOpen(true);
-          }}
-          onOpenShareDialog={() => {
-            setShareError("");
-            setShareDialogOpen(true);
-          }}
-          onSelectCalendar={setSelectedCalendarId}
-          selectedCalendarId={selectedCalendarId}
+          selectedCalendarDetail={selectedCalendarDetail}
           setTimeGridStep={setTimeGridStep}
           t={t}
           timeGridStep={timeGridStep}
         />
       ),
     }),
-    [
-      calendars,
-      canEditSelectedCalendar,
-      canShareSelectedCalendar,
-      openCreateDialog,
-      selectedCalendarId,
-      setSelectedCalendarId,
-      setTimeGridStep,
-      t,
-      timeGridStep,
-    ],
+    [selectedCalendarDetail, setTimeGridStep, t, timeGridStep],
   );
 
   const messages = useMemo(
@@ -721,7 +267,7 @@ export function ItineraryCalendar() {
     };
   }, []);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!canEditSelectedCalendar) {
@@ -754,44 +300,43 @@ export function ItineraryCalendar() {
       startAt: draft.startAt,
       title: draft.title.trim(),
     };
+    const isEditing = Boolean(draft.id);
 
-    try {
-      if (draft.id) {
-        await updateItineraryItem({
-          itineraryItemId: draft.id,
-          input,
-        });
-        toast.success(tToast("itineraryUpdateSuccess"));
-      } else {
+    void runToastOperation(
+      async () => {
+        if (isEditing && draft.id) {
+          await updateItineraryItem({
+            itineraryItemId: draft.id,
+            input,
+          });
+          return;
+        }
+
         await createItineraryItem(input);
-        toast.success(tToast("itineraryCreateSuccess"));
-      }
-
-      setDialogOpen(false);
-    } catch {
-      toast.error(
-        draft.id
-          ? tToast("itineraryUpdateFailed")
-          : tToast("itineraryCreateFailed"),
-      );
-    }
+      },
+      {
+        error: isEditing ? "itineraryUpdateFailed" : "itineraryCreateFailed",
+        success: isEditing
+          ? "itineraryUpdateSuccess"
+          : "itineraryCreateSuccess",
+        onSuccess: () => setDialogOpen(false),
+      },
+    ).catch(() => undefined);
   }
 
-  async function handleDelete() {
+  function handleDelete() {
     if (!draft.id || !canEditSelectedCalendar) {
       return;
     }
 
-    try {
-      await deleteItineraryItem(draft.id);
-      toast.success(tToast("itineraryDeleteSuccess"));
-      setDialogOpen(false);
-    } catch {
-      toast.error(tToast("itineraryDeleteFailed"));
-    }
+    void runToastOperation(() => deleteItineraryItem(draft.id as string), {
+      error: "itineraryDeleteFailed",
+      success: "itineraryDeleteSuccess",
+      onSuccess: () => setDialogOpen(false),
+    }).catch(() => undefined);
   }
 
-  async function handleEventTimeChange({
+  function handleEventTimeChange({
     end,
     event,
     isAllDay,
@@ -801,70 +346,73 @@ export function ItineraryCalendar() {
       return;
     }
 
-    try {
-      await updateItineraryItem({
-        itineraryItemId: event.id,
-        input: {
-          allDay: isAllDay ?? event.allDay,
-          endAt: new Date(end),
-          startAt: new Date(start),
+    void runToastOperation(
+      () =>
+        updateItineraryItem({
+          itineraryItemId: event.id,
+          input: {
+            allDay: isAllDay ?? event.allDay,
+            endAt: new Date(end),
+            startAt: new Date(start),
+          },
+        }),
+      {
+        error: "itineraryUpdateFailed",
+        success: false,
+      },
+    ).catch(() => undefined);
+  }
+
+  function handleShareSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setShareError("");
+
+    void runToastOperation(
+      () =>
+        shareCalendar({
+          recipientEmail: shareEmail,
+          role: shareRole,
+        }),
+      {
+        error: "calendarShareFailed",
+        success: "calendarShareSuccess",
+        onError: (error) => setShareError(getShareErrorMessage(error, t)),
+        onSuccess: () => {
+          setShareEmail("");
+          setShareRole("viewer");
         },
-      });
-    } catch {
-      toast.error(tToast("itineraryUpdateFailed"));
-    }
+      },
+    ).catch(() => undefined);
   }
 
-  async function handleShareSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleCalendarSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setCalendarError("");
+    const isEditing = Boolean(editingCalendarId);
 
-    try {
-      setShareError("");
-      await shareCalendar({
-        recipientEmail: shareEmail,
-        role: shareRole,
-      });
-      toast.success(tToast("calendarShareSuccess"));
-      setShareEmail("");
-      setShareRole("viewer");
-    } catch (error) {
-      setShareError(getShareErrorMessage(error, t));
-      toast.error(tToast("calendarShareFailed"));
-    }
-  }
+    void runToastOperation(
+      async () => {
+        if (isEditing && editingCalendarId) {
+          await updateCalendar({
+            calendarId: editingCalendarId,
+            description: calendarDescription,
+            title: calendarTitle,
+          });
+          return;
+        }
 
-  async function handleCalendarSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    try {
-      setCalendarError("");
-
-      if (editingCalendarId) {
-        await updateCalendar({
-          calendarId: editingCalendarId,
-          description: calendarDescription,
-          title: calendarTitle,
-        });
-        toast.success(tToast("calendarUpdateSuccess"));
-      } else {
         await createCalendar({
           description: calendarDescription,
           title: calendarTitle,
         });
-        toast.success(tToast("calendarCreateSuccess"));
-      }
-
-      setCalendarDescription("");
-      setCalendarTitle("");
-      setEditingCalendarId(null);
-    } catch (error) {
-      setCalendarError(getCalendarErrorMessage(error, t));
-      toast.error(
-        editingCalendarId
-          ? tToast("calendarUpdateFailed")
-          : tToast("calendarCreateFailed"),
-      );
-    }
+      },
+      {
+        error: isEditing ? "calendarUpdateFailed" : "calendarCreateFailed",
+        success: isEditing ? "calendarUpdateSuccess" : "calendarCreateSuccess",
+        onError: (error) => setCalendarError(getCalendarErrorMessage(error, t)),
+        onSuccess: resetCalendarForm,
+      },
+    ).catch(() => undefined);
   }
 
   function handleStartCalendarEdit(calendar: CalendarSummary) {
@@ -874,138 +422,76 @@ export function ItineraryCalendar() {
     setCalendarError("");
   }
 
-  async function handleDeleteCalendar(calendarId: string) {
-    try {
-      await deleteCalendar(calendarId);
-      toast.success(tToast("calendarDeleteSuccess"));
-
-      if (editingCalendarId === calendarId) {
-        setCalendarDescription("");
-        setCalendarTitle("");
-        setEditingCalendarId(null);
-      }
-    } catch {
-      toast.error(tToast("calendarDeleteFailed"));
-    }
+  function handleDeleteCalendar(calendarId: string) {
+    void runToastOperation(() => deleteCalendar(calendarId), {
+      error: "calendarDeleteFailed",
+      success: "calendarDeleteSuccess",
+      onSuccess: () => {
+        if (editingCalendarId === calendarId) {
+          resetCalendarForm();
+        }
+      },
+    }).catch(() => undefined);
   }
 
-  async function handleShareRoleChange(shareId: string, role: CalendarRole) {
-    try {
-      await updateCalendarShareRole({ shareId, role });
-      toast.success(tToast("calendarShareUpdateSuccess"));
-    } catch {
-      toast.error(tToast("calendarShareUpdateFailed"));
-    }
+  function handleShareRoleChange(shareId: string, role: CalendarRole) {
+    void runToastOperation(() => updateCalendarShareRole({ shareId, role }), {
+      error: "calendarShareUpdateFailed",
+      success: "calendarShareUpdateSuccess",
+    }).catch(() => undefined);
   }
 
-  async function handleRevokeShare(shareId: string) {
-    try {
-      await revokeCalendarShare(shareId);
-      toast.success(tToast("calendarShareRevokeSuccess"));
-    } catch {
-      toast.error(tToast("calendarShareRevokeFailed"));
-    }
+  function handleRevokeShare(shareId: string) {
+    void runToastOperation(() => revokeCalendarShare(shareId), {
+      error: "calendarShareRevokeFailed",
+      success: "calendarShareRevokeSuccess",
+    }).catch(() => undefined);
   }
 
   return (
-    <main className="flex min-w-0 flex-col gap-5">
-      <div className="flex items-center gap-2.5">
-        <SidebarTrigger className="-ml-1 mt-1 text-muted-foreground hover:text-foreground transition-colors" />
-
-        {selectedCalendarDetail ? (
-          <p className="text-xs text-muted-foreground">
-            {t("calendarSelector.current", {
-              access: selectedCalendarDetail,
-            })}
-          </p>
-        ) : null}
-      </div>
-
-      {itineraryRealtimeError || calendarsRealtimeError ? (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-          {itineraryRealtimeError
-            ? t("realtimeError")
-            : t("share.realtimeError")}
-        </div>
-      ) : null}
+    <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col gap-3 overflow-hidden">
+      <ItineraryRealtimeAlert
+        calendarsRealtimeError={calendarsRealtimeError}
+        itineraryRealtimeError={itineraryRealtimeError}
+        t={t}
+      />
 
       {!hasActiveCalendars && !isItineraryLoading ? (
-        <Empty className="border">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <CalendarPlusIcon />
-            </EmptyMedia>
-            <EmptyTitle>{t("calendarEmpty.title")}</EmptyTitle>
-            <EmptyDescription>
-              {t("calendarEmpty.description")}
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button
-              onClick={() => {
-                setCalendarError("");
-                setCalendarDescription("");
-                setCalendarTitle("");
-                setEditingCalendarId(null);
-                setCalendarDialogOpen(true);
-              }}
-              type="button"
-            >
-              <CalendarPlusIcon data-icon="inline-start" />
-              {t("calendarManager.create")}
-            </Button>
-          </EmptyContent>
-        </Empty>
+        <NoCalendarEmptyState
+          onCreateCalendar={() => {
+            resetCalendarForm();
+            setCalendarDialogOpen(true);
+          }}
+          t={t}
+        />
       ) : null}
 
       {hasActiveCalendars && isItineraryLoading ? (
-        <div className="flex flex-col gap-3">
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
           <Skeleton className="h-9 w-full max-w-md" />
-          <Skeleton className="h-[520px] w-full" />
+          <Skeleton className="min-h-0 flex-1" />
         </div>
       ) : null}
 
       {hasActiveCalendars && !isItineraryLoading && events.length === 0 ? (
-        <Empty className="border">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              {itineraryItems.length > 0 ? (
-                <ListFilterIcon />
-              ) : (
-                <CalendarDaysIcon />
-              )}
-            </EmptyMedia>
-            <EmptyTitle>
-              {itineraryItems.length > 0
-                ? t("filterEmptyTitle")
-                : t("emptyTitle")}
-            </EmptyTitle>
-            <EmptyDescription>
-              {itineraryItems.length > 0
-                ? t("filterEmptyDescription")
-                : t("emptyDescription")}
-            </EmptyDescription>
-          </EmptyHeader>
-          {itineraryItems.length === 0 ? (
-            <EmptyContent>
-              <Button
-                disabled={!canEditSelectedCalendar}
-                onClick={openCreateDialog}
-                type="button"
-              >
-                <PlusIcon data-icon="inline-start" />
-                {t("add")}
-              </Button>
-            </EmptyContent>
-          ) : null}
-        </Empty>
+        <ItineraryItemsEmptyState
+          canCreate={canEditSelectedCalendar}
+          hasItems={itineraryItems.length > 0}
+          onCreate={openCreateDialog}
+          t={t}
+        />
       ) : null}
 
       {hasActiveCalendars ? (
-        <div className={cn("w-full", isItineraryLoading && "hidden")}>
+        <div
+          className={cn(
+            "min-h-0 w-full flex-1 overflow-hidden",
+            isItineraryLoading && "hidden",
+          )}
+        >
           <section
             aria-label={t("calendarAriaLabel")}
-            className="tabi-itinerary-calendar min-w-0 w-full"
+            className="tabi-itinerary-calendar h-full min-h-0 w-full min-w-0"
             style={calendarStyle}
           >
             <DragAndDropCalendar
@@ -1046,529 +532,62 @@ export function ItineraryCalendar() {
         </div>
       ) : null}
 
-      <Dialog
+      <ItineraryItemDialog
+        canEdit={canEditSelectedCalendar}
+        categories={categories}
+        categoryMap={categoryMap}
+        draft={draft}
+        formError={formError}
+        isDeleting={isDeletingItineraryItem}
+        isSaving={isSaving}
+        locale={locale}
+        onDelete={handleDelete}
         onOpenChange={setDialogOpen}
+        onSubmit={handleSubmit}
         open={dialogOpen}
-      >
-        <DialogContent className="sm:max-w-xl">
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={handleSubmit}
-          >
-            <DialogHeader>
-              <DialogTitle>
-                {!canEditSelectedCalendar && draft.id
-                  ? t("dialog.viewTitle")
-                  : draft.id
-                    ? t("dialog.editTitle")
-                    : t("dialog.createTitle")}
-              </DialogTitle>
-              <DialogDescription>
-                {!canEditSelectedCalendar && draft.id
-                  ? t("dialog.viewDescription")
-                  : t("dialog.description")}
-              </DialogDescription>
-            </DialogHeader>
+        setDraft={setDraft}
+        t={t}
+      />
 
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="itinerary-title">
-                  {t("fields.title")}
-                </FieldLabel>
-                <Input
-                  disabled={!canEditSelectedCalendar}
-                  id="itinerary-title"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      title: event.target.value,
-                    }))
-                  }
-                  placeholder={t("placeholders.title")}
-                  required
-                  value={draft.title}
-                />
-              </Field>
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field>
-                  <ItineraryDateTimePicker
-                    disabled={!canEditSelectedCalendar}
-                    id="itinerary-start"
-                    label={t("fields.start")}
-                    locale={locale}
-                    onChange={(startAt) =>
-                      setDraft((current) => ({
-                        ...current,
-                        startAt,
-                        endAt:
-                          current.endAt <= startAt
-                            ? addHours(startAt, 1)
-                            : current.endAt,
-                      }))
-                    }
-                    value={draft.startAt}
-                  />
-                </Field>
-                <Field>
-                  <ItineraryDateTimePicker
-                    disabled={!canEditSelectedCalendar}
-                    id="itinerary-end"
-                    label={t("fields.end")}
-                    locale={locale}
-                    onChange={(endAt) =>
-                      setDraft((current) => ({ ...current, endAt }))
-                    }
-                    value={draft.endAt}
-                  />
-                </Field>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="itinerary-location">
-                    {t("fields.location")}
-                  </FieldLabel>
-                  <Input
-                    disabled={!canEditSelectedCalendar}
-                    id="itinerary-location"
-                    onChange={(event) =>
-                      setDraft((current) => ({
-                        ...current,
-                        location: event.target.value,
-                      }))
-                    }
-                    placeholder={t("placeholders.location")}
-                    value={draft.location}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>{t("fields.category")}</FieldLabel>
-                  <Select
-                    disabled={!canEditSelectedCalendar}
-                    onValueChange={(category) =>
-                      setDraft((current) => ({
-                        ...current,
-                        category:
-                          category === UNCATEGORIZED_VALUE ? null : category,
-                      }))
-                    }
-                    value={
-                      draft.category && categoryMap.has(draft.category)
-                        ? draft.category
-                        : UNCATEGORIZED_VALUE
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value={UNCATEGORIZED_VALUE}>
-                          {t("category.uncategorized")}
-                        </SelectItem>
-                        {categories.map((category) => (
-                          <SelectItem
-                            key={category.id}
-                            value={category.id}
-                          >
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldDescription>
-                    {t("fields.categoryHint")}
-                  </FieldDescription>
-                </Field>
-              </div>
-              <Field orientation="horizontal">
-                <Checkbox
-                  checked={draft.allDay}
-                  disabled={!canEditSelectedCalendar}
-                  id="itinerary-all-day"
-                  onCheckedChange={(checked) =>
-                    setDraft((current) => ({
-                      ...current,
-                      allDay: checked === true,
-                    }))
-                  }
-                />
-                <FieldContent>
-                  <FieldLabel htmlFor="itinerary-all-day">
-                    {t("fields.allDay")}
-                  </FieldLabel>
-                  <FieldDescription>{t("fields.allDayHint")}</FieldDescription>
-                </FieldContent>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="itinerary-description">
-                  {t("fields.description")}
-                </FieldLabel>
-                <Textarea
-                  disabled={!canEditSelectedCalendar}
-                  id="itinerary-description"
-                  onChange={(event) =>
-                    setDraft((current) => ({
-                      ...current,
-                      description: event.target.value,
-                    }))
-                  }
-                  placeholder={t("placeholders.description")}
-                  value={draft.description}
-                />
-              </Field>
-              <FieldError>{formError}</FieldError>
-            </FieldGroup>
-
-            <DialogFooter>
-              {!canEditSelectedCalendar ? (
-                <Button
-                  onClick={() => setDialogOpen(false)}
-                  type="button"
-                >
-                  {t("close")}
-                </Button>
-              ) : null}
-              {canEditSelectedCalendar && draft.id ? (
-                <Button
-                  disabled={isDeletingItineraryItem || isSaving}
-                  onClick={handleDelete}
-                  type="button"
-                  variant="destructive"
-                >
-                  {isDeletingItineraryItem ? (
-                    <Spinner data-icon="inline-start" />
-                  ) : (
-                    <Trash2Icon data-icon="inline-start" />
-                  )}
-                  {t("delete")}
-                </Button>
-              ) : null}
-              {canEditSelectedCalendar ? (
-                <Button
-                  disabled={isDeletingItineraryItem || isSaving}
-                  type="submit"
-                >
-                  {isSaving ? (
-                    <Spinner data-icon="inline-start" />
-                  ) : (
-                    <MapPinIcon data-icon="inline-start" />
-                  )}
-                  {draft.id ? t("save") : t("create")}
-                </Button>
-              ) : null}
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
+      <CalendarManagerDialog
+        archivedCalendars={archivedCalendars}
+        calendarDescription={calendarDescription}
+        calendarError={calendarError}
+        calendarTitle={calendarTitle}
+        editingCalendarId={editingCalendarId}
+        isDeletingCalendar={isDeletingCalendar}
+        isSavingCalendar={isSavingCalendar}
+        onCancelEdit={resetCalendarForm}
+        onDeleteCalendar={handleDeleteCalendar}
         onOpenChange={setCalendarDialogOpen}
+        onStartCalendarEdit={handleStartCalendarEdit}
+        onSubmit={handleCalendarSubmit}
         open={calendarDialogOpen}
-      >
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>{t("calendarManager.title")}</DialogTitle>
-            <DialogDescription>
-              {t("calendarManager.description")}
-            </DialogDescription>
-          </DialogHeader>
+        ownedCalendars={ownedCalendars}
+        setCalendarDescription={setCalendarDescription}
+        setCalendarError={setCalendarError}
+        setCalendarTitle={setCalendarTitle}
+        t={t}
+      />
 
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={handleCalendarSubmit}
-          >
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="calendar-title">
-                  {t("calendarManager.titleField")}
-                </FieldLabel>
-                <Input
-                  disabled={isSavingCalendar}
-                  id="calendar-title"
-                  onChange={(event) => {
-                    setCalendarTitle(event.target.value);
-                    setCalendarError("");
-                  }}
-                  placeholder={t("calendarManager.titlePlaceholder")}
-                  value={calendarTitle}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="calendar-description">
-                  {t("calendarManager.descriptionField")}
-                </FieldLabel>
-                <Textarea
-                  disabled={isSavingCalendar}
-                  id="calendar-description"
-                  onChange={(event) =>
-                    setCalendarDescription(event.target.value)
-                  }
-                  placeholder={t("calendarManager.descriptionPlaceholder")}
-                  value={calendarDescription}
-                />
-              </Field>
-              <FieldError>{calendarError}</FieldError>
-            </FieldGroup>
-            <DialogFooter>
-              {editingCalendarId ? (
-                <Button
-                  onClick={() => {
-                    setCalendarDescription("");
-                    setCalendarTitle("");
-                    setEditingCalendarId(null);
-                    setCalendarError("");
-                  }}
-                  type="button"
-                  variant="ghost"
-                >
-                  {t("calendarManager.cancelEdit")}
-                </Button>
-              ) : null}
-              <Button
-                disabled={isSavingCalendar}
-                type="submit"
-              >
-                {isSavingCalendar ? (
-                  <Spinner data-icon="inline-start" />
-                ) : (
-                  <CalendarPlusIcon data-icon="inline-start" />
-                )}
-                {editingCalendarId
-                  ? t("calendarManager.save")
-                  : t("calendarManager.create")}
-              </Button>
-            </DialogFooter>
-          </form>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium">
-              {t("calendarManager.yourCalendars")}
-            </h3>
-            <div className="flex flex-col gap-2">
-              {ownedCalendars.map((calendar) => (
-                <div
-                  className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between"
-                  key={calendar.id}
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">
-                      {getCalendarLabel(calendar, t)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {calendar.description || calendar.ownerEmail}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      disabled={isDeletingCalendar || isSavingCalendar}
-                      onClick={() => handleStartCalendarEdit(calendar)}
-                      type="button"
-                      variant="outline"
-                    >
-                      <PencilIcon data-icon="inline-start" />
-                      {t("calendarManager.edit")}
-                    </Button>
-                    <Button
-                      disabled={isDeletingCalendar || isSavingCalendar}
-                      onClick={() => void handleDeleteCalendar(calendar.id)}
-                      type="button"
-                      variant="destructive"
-                    >
-                      {isDeletingCalendar ? (
-                        <Spinner data-icon="inline-start" />
-                      ) : (
-                        <Trash2Icon data-icon="inline-start" />
-                      )}
-                      {t("calendarManager.delete")}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              {ownedCalendars.length === 0 ? (
-                <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-                  {t("calendarManager.empty")}
-                </p>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium">
-              {t("calendarManager.archived")}
-            </h3>
-            {archivedCalendars.length === 0 ? (
-              <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-                {t("calendarManager.archivedEmpty")}
-              </p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {archivedCalendars.map((calendar) => (
-                  <div
-                    className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between"
-                    key={calendar.id}
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {getCalendarLabel(calendar, t)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {calendar.description || calendar.ownerEmail}
-                      </p>
-                    </div>
-                    <Badge variant="secondary">
-                      {t("calendarManager.archivedBadge")}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
+      <CalendarShareDialog
+        isRevokingCalendarShare={isRevokingCalendarShare}
+        isSharingCalendar={isSharingCalendar}
+        isUpdatingCalendarShareRole={isUpdatingCalendarShareRole}
         onOpenChange={setShareDialogOpen}
+        onRevokeShare={handleRevokeShare}
+        onShareEmailChange={setShareEmail}
+        onShareErrorChange={setShareError}
+        onShareRoleChange={handleShareRoleChange}
+        onSubmit={handleShareSubmit}
         open={shareDialogOpen}
-      >
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>{t("share.title")}</DialogTitle>
-            <DialogDescription>{t("share.description")}</DialogDescription>
-          </DialogHeader>
-
-          <form
-            className="flex flex-col gap-4"
-            onSubmit={handleShareSubmit}
-          >
-            <FieldGroup>
-              <div className="grid gap-4 md:grid-cols-[1fr_9rem]">
-                <Field>
-                  <FieldLabel htmlFor="calendar-share-email">
-                    {t("share.email")}
-                  </FieldLabel>
-                  <Input
-                    disabled={isSharingCalendar}
-                    id="calendar-share-email"
-                    onChange={(event) => {
-                      setShareEmail(event.target.value);
-                      setShareError("");
-                    }}
-                    placeholder={t("share.emailPlaceholder")}
-                    type="email"
-                    value={shareEmail}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>{t("share.role")}</FieldLabel>
-                  <Select
-                    disabled={isSharingCalendar}
-                    onValueChange={(role) => setShareRole(role as CalendarRole)}
-                    value={shareRole}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {CALENDAR_ROLES.map((role) => (
-                          <SelectItem
-                            key={role}
-                            value={role}
-                          >
-                            {t(`access.${role}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
-              <FieldError>{shareError}</FieldError>
-            </FieldGroup>
-
-            <DialogFooter>
-              <Button
-                disabled={isSharingCalendar}
-                type="submit"
-              >
-                {isSharingCalendar ? (
-                  <Spinner data-icon="inline-start" />
-                ) : (
-                  <Share2Icon data-icon="inline-start" />
-                )}
-                {t("share.submit")}
-              </Button>
-            </DialogFooter>
-          </form>
-
-          <div className="flex flex-col gap-2">
-            <h3 className="text-sm font-medium">{t("share.sharedWith")}</h3>
-            {selectedCalendarOutgoingShares.length === 0 ? (
-              <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-                {t("share.empty")}
-              </p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {selectedCalendarOutgoingShares.map((share: CalendarShare) => (
-                  <div
-                    className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between"
-                    key={share.id}
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {share.recipientEmail}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {t(`access.${share.role}`)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Select
-                        disabled={isUpdatingCalendarShareRole}
-                        onValueChange={(role) =>
-                          void handleShareRoleChange(
-                            share.id,
-                            role as CalendarRole,
-                          )
-                        }
-                        value={share.role}
-                      >
-                        <SelectTrigger
-                          aria-label={t("share.role")}
-                          className="w-28"
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            {CALENDAR_ROLES.map((role) => (
-                              <SelectItem
-                                key={role}
-                                value={role}
-                              >
-                                {t(`access.${role}`)}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        disabled={isRevokingCalendarShare}
-                        onClick={() => void handleRevokeShare(share.id)}
-                        type="button"
-                        variant="ghost"
-                      >
-                        {t("share.revoke")}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+        selectedCalendarOutgoingShares={selectedCalendarOutgoingShares}
+        setShareRole={setShareRole}
+        shareEmail={shareEmail}
+        shareError={shareError}
+        shareRole={shareRole}
+        t={t}
+      />
     </main>
   );
 }

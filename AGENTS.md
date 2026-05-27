@@ -39,6 +39,30 @@ This project uses both Zustand and TanStack React Query. Use each for its intend
   - Server data lives in React Query cache.
   - UI/client state lives in Zustand stores.
 
+# Separation of concern and clean code
+
+- Keep route files thin. `page.tsx`, `layout.tsx`, and `template.tsx` must stay Server Components unless a framework convention explicitly requires a Client Component.
+- Put client interactivity in focused client islands under `components/`, not in App Router special files.
+- Avoid god files. Split a file once it mixes route wiring, data orchestration, derived data, forms/dialogs, and presentational lists.
+- Prefer feature folders with small `components`, `hooks`, `types`, `constants`, and `utils` modules when a feature grows.
+- Make code readable by humans: clear names, small functions, explicit data flow, and minimal cleverness.
+
+# Effects and operation feedback
+
+- Use `useEffect` only for external synchronization: subscriptions, browser APIs, redirects, or third-party lifecycle work.
+- Do not use `useEffect` for state that can be derived during render, via React Query mutation lifecycle, or inside event handlers.
+- Every user-triggered async operation must show localized toast feedback through shared toast hooks/wrappers.
+- Do not scatter `try/catch + toast` blocks across UI files when a shared operation wrapper can handle success and failure copy.
+
+# UI design pattern
+
+- Use shadcn/ui composition first, with semantic tokens and compact controls.
+- Keep itinerary and app UI clean, minimalist, compact, and readable.
+- Use `primary` for main actions, active states, and selection emphasis; use `outline` or `ghost` for secondary actions.
+- Use `destructive` only for destructive delete/archive/revoke actions.
+- Avoid nested cards, excessive animation, decorative transforms, and raw color classes when semantic tokens work.
+- Do not make static elements interactive. Use buttons, labels, links, and proper shadcn controls.
+
 # Folder conventions
 
 - Use `services/` for Firebase service functions.

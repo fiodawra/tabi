@@ -1,26 +1,9 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useAuth } from "@/stores/auth-store";
+import { ProtectedGate } from "@/components/protected-gate";
 
 export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isLoading, user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/");
-    }
-  }, [isLoading, router, user]);
-
-  if (isLoading || !user) {
-    return null;
-  }
-
-  return <div>{children}</div>;
+  return <ProtectedGate>{children}</ProtectedGate>;
 }

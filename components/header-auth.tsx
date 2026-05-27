@@ -3,10 +3,6 @@
 import { LogOut } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { AuthDomainError, useAuth } from "@/stores/auth-store";
-import { useTranslations } from "@/hooks/use-i18n";
-import { useUserProfile } from "@/hooks/use-user-profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,13 +26,17 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslations } from "@/hooks/use-i18n";
+import { useToastOperation } from "@/hooks/use-toast-operation";
+import { useUserProfile } from "@/hooks/use-user-profile";
+import { AuthDomainError, useAuth } from "@/stores/auth-store";
 
 export function HeaderAuth() {
   const { user, signInWithGoogle, signOutUser } = useAuth();
   const { profile, isProfileLoading, isUpdatingProfile, updateProfile } =
     useUserProfile();
   const t = useTranslations("Auth");
-  const tToast = useTranslations("OperationToast");
+  const runToastOperation = useToastOperation();
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -50,53 +50,44 @@ export function HeaderAuth() {
     setBio(profile?.bio ?? "");
   }, [profile, user?.displayName]);
 
-  async function handleSaveProfile() {
+  function handleSaveProfile() {
     if (!user) {
       return;
     }
 
-    try {
-      await updateProfile({
-        name: name.trim(),
-        bio: bio.trim(),
-      });
-      toast.success(tToast("profileSaved"));
-    } catch {
-      toast.error(tToast("profileSaveFailed"));
-    }
+    void runToastOperation(
+      () =>
+        updateProfile({
+          name: name.trim(),
+          bio: bio.trim(),
+        }),
+      {
+        error: "profileSaveFailed",
+        success: "profileSaved",
+      },
+    ).catch(() => undefined);
   }
 
-  async function handleSignIn() {
-    try {
-      const result = await signInWithGoogle();
-      if (result === "signed-in") {
-        toast.success(tToast("signInSuccess"));
-      }
-    } catch (error) {
-      toast.error(
+  function handleSignIn() {
+    void runToastOperation(() => signInWithGoogle(), {
+      error: (error) =>
         error instanceof AuthDomainError
-          ? tToast("signInUnauthorizedDomain")
-          : tToast("signInFailed"),
-      );
-    }
+          ? "signInUnauthorizedDomain"
+          : "signInFailed",
+      success: (result) => (result === "signed-in" ? "signInSuccess" : false),
+    }).catch(() => undefined);
   }
 
-  async function handleSignOut() {
-    try {
-      await signOutUser();
-      toast.success(tToast("signOutSuccess"));
-    } catch {
-      toast.error(tToast("signOutFailed"));
-    }
+  function handleSignOut() {
+    void runToastOperation(() => signOutUser(), {
+      error: "signOutFailed",
+      success: "signOutSuccess",
+    }).catch(() => undefined);
   }
 
   if (!user) {
     return (
-      <Button
-        type="button"
-        size="sm"
-        onClick={() => void handleSignIn()}
-      >
+      <Button type="button" size="sm" onClick={() => void handleSignIn()}>
         {t("signInWithGoogle")}
       </Button>
     );
@@ -152,52 +143,49 @@ export function HeaderAuth() {
 
       <Sheet open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
         <SheetContent side="right">
-        <SheetHeader>
-          <SheetTitle>{t("editProfile")}</SheetTitle>
-          <SheetDescription>{user.email ?? ""}</SheetDescription>
-        </SheetHeader>
-        <div className="px-6 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="profile-name">{t("name")}</Label>
-            <Input
-              id="profile-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder={t("namePlaceholder")}
-              disabled={isProfileLoading || isUpdatingProfile}
-            />
+          <SheetHeader>
+            <SheetTitle>{t("editProfile")}</SheetTitle>
+            <SheetDescription>{user.email ?? ""}</SheetDescription>
+          </SheetHeader>
+          <div className="px-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="profile-name">{t("name")}</Label>
+              <Input
+                id="profile-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder={t("namePlaceholder")}
+                disabled={isProfileLoading || isUpdatingProfile}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="profile-bio">{t("bio")}</Label>
+              <Textarea
+                id="profile-bio"
+                value={bio}
+                onChange={(event) => setBio(event.target.value)}
+                placeholder={t("bioPlaceholder")}
+                disabled={isProfileLoading || isUpdatingProfile}
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="profile-bio">{t("bio")}</Label>
-            <Textarea
-              id="profile-bio"
-              value={bio}
-              onChange={(event) => setBio(event.target.value)}
-              placeholder={t("bioPlaceholder")}
-              disabled={isProfileLoading || isUpdatingProfile}
-            />
-          </div>
-        </div>
-        <SheetFooter>
-          <SheetClose asChild>
+          <SheetFooter>
+            <SheetClose asChild>
+              <Button type="button" variant="ghost">
+                {t("cancel")}
+              </Button>
+            </SheetClose>
             <Button
               type="button"
-              variant="ghost"
+              onClick={async () => {
+                await handleSaveProfile();
+                setIsEditProfileOpen(false);
+              }}
+              disabled={isProfileLoading || isUpdatingProfile}
             >
-              {t("cancel")}
+              {isUpdatingProfile ? t("saving") : t("save")}
             </Button>
-          </SheetClose>
-          <Button
-            type="button"
-            onClick={async () => {
-              await handleSaveProfile();
-              setIsEditProfileOpen(false);
-            }}
-            disabled={isProfileLoading || isUpdatingProfile}
-          >
-            {isUpdatingProfile ? t("saving") : t("save")}
-          </Button>
-        </SheetFooter>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
     </>
