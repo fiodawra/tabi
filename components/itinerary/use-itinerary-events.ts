@@ -3,17 +3,16 @@
 import { useMemo } from "react";
 import type { ItineraryCategory } from "@/services/itinerary-category-service";
 import type { ItineraryItem } from "@/services/itinerary-service";
-import {
-  getVisibleCategoryIds,
-  toCalendarEvents,
-  toCategoryMap,
-} from "./itinerary-utils";
+import { toCalendarEvents } from "./itinerary-recurrence";
+import { getVisibleCategoryIds, toCategoryMap } from "./itinerary-utils";
 
 type UseItineraryEventsInput = {
   categories: ItineraryCategory[];
   categoryFilterIds?: string[];
   isUncategorizedFilterVisible: boolean;
   itineraryItems: ItineraryItem[];
+  rangeEnd: Date;
+  rangeStart: Date;
 };
 
 export function useItineraryEvents({
@@ -21,6 +20,8 @@ export function useItineraryEvents({
   categoryFilterIds,
   isUncategorizedFilterVisible,
   itineraryItems,
+  rangeEnd,
+  rangeStart,
 }: UseItineraryEventsInput) {
   const categoryMap = useMemo(() => toCategoryMap(categories), [categories]);
   const visibleCategoryIds = useMemo(
@@ -38,11 +39,14 @@ export function useItineraryEvents({
         categoryMap,
         visibleCategoryIdSet,
         isUncategorizedFilterVisible,
+        { rangeEnd, rangeStart },
       ),
     [
       categoryMap,
       isUncategorizedFilterVisible,
       itineraryItems,
+      rangeEnd,
+      rangeStart,
       visibleCategoryIdSet,
     ],
   );

@@ -3,6 +3,16 @@
 import { type CSSProperties, useCallback, useMemo, useState } from "react";
 import { type SlotInfo, type ToolbarProps, Views } from "react-big-calendar";
 import type { EventInteractionArgs } from "react-big-calendar/lib/addons/dragAndDrop";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCalendars } from "@/hooks/use-calendars";
 import { useLocale, useTranslations } from "@/hooks/use-i18n";
@@ -34,13 +44,14 @@ import {
 } from "./itinerary-empty-state";
 import { ItineraryItemDialog } from "./itinerary-item-dialog";
 import { ItineraryRealtimeAlert } from "./itinerary-realtime-alert";
+import { getCalendarExpansionRange } from "./itinerary-recurrence";
 import { useRegisterItinerarySidebarActions } from "./itinerary-sidebar-actions";
 import { ItineraryToolbar } from "./itinerary-toolbar";
 import type { CalendarEvent, ItineraryDraft } from "./itinerary-types";
 import {
   addHours,
   createDraftFromDates,
-  createDraftFromItem,
+  createDraftFromEvent,
   createStartDateForSelection,
   getCalendarDetail,
   getCalendarErrorMessage,
@@ -53,6 +64,22 @@ import { useItineraryEvents } from "./use-itinerary-events";
 type ItineraryCalendarStyle = CSSProperties & {
   "--itinerary-timeslots-per-hour": number;
 };
+
+type PendingRecurringAction =
+  | {
+      input: SaveItineraryItemInput;
+      kind: "save";
+    }
+  | {
+      kind: "delete";
+    }
+  | {
+      event: CalendarEvent;
+      input: Partial<SaveItineraryItemInput>;
+      kind: "time";
+    };
+
+type RecurringActionScope = "one" | "all";
 
 export function ItineraryCalendar() {
   const t = useTranslations("ItineraryPage");
@@ -80,13 +107,17 @@ export function ItineraryCalendar() {
   } = useCalendars();
   const {
     createItineraryItem,
+    deleteItineraryOccurrence,
     deleteItineraryItem,
     itineraryItems,
     itineraryRealtimeError,
     isCreatingItineraryItem,
+    isDeletingItineraryOccurrence,
     isDeletingItineraryItem,
     isItineraryLoading,
+    isUpdatingItineraryOccurrence,
     isUpdatingItineraryItem,
+    updateItineraryOccurrence,
     updateItineraryItem,
   } = useItinerary(selectedCalendar);
   const { categories } = useItineraryCategories(selectedCalendar);
@@ -110,6 +141,10 @@ export function ItineraryCalendar() {
     () => readStoredDate(selectedDateValue),
     [selectedDateValue],
   );
+  const eventRange = useMemo(
+    () => getCalendarExpansionRange(calendarView, selectedDate),
+    [calendarView, selectedDate],
+  );
   const calendarStyle = useMemo<ItineraryCalendarStyle>(
     () => ({
       "--itinerary-timeslots-per-hour": TIMESLOTS_BY_STEP[timeGridStep],
@@ -121,6 +156,8 @@ export function ItineraryCalendar() {
     categoryFilterIds,
     isUncategorizedFilterVisible,
     itineraryItems,
+    rangeEnd: eventRange.rangeEnd,
+    rangeStart: eventRange.rangeStart,
   });
   const [draft, setDraft] = useState<ItineraryDraft>(() => {
     const startAt = createStartDateForSelection(selectedDate);
@@ -139,6 +176,8 @@ export function ItineraryCalendar() {
   const [shareError, setShareError] = useState("");
   const [shareRole, setShareRole] = useState<CalendarRole>("viewer");
   const [formError, setFormError] = useState("");
+  const [pendingRecurringAction, setPendingRecurringAction] =
+    useState<PendingRecurringAction | null>(null);
   const canEditSelectedCalendar =
     selectedCalendar?.access === "owner" ||
     selectedCalendar?.access === "editor";
@@ -148,7 +187,11 @@ export function ItineraryCalendar() {
   const selectedCalendarDetail = selectedCalendar
     ? getCalendarDetail(selectedCalendar, t)
     : "";
-  const isSaving = isCreatingItineraryItem || isUpdatingItineraryItem;
+  const isSaving =
+    isCreatingItineraryItem ||
+    isUpdatingItineraryItem ||
+    isUpdatingItineraryOccurrence;
+  const isDeleting = isDeletingItineraryItem || isDeletingItineraryOccurrence;
   const isSavingCalendar = isCreatingCalendar || isUpdatingCalendar;
   const hasActiveCalendars = calendars.length > 0;
 
@@ -177,7 +220,7 @@ export function ItineraryCalendar() {
   }, [canEditSelectedCalendar, selectedDate]);
 
   const openEditDialog = useCallback((event: CalendarEvent) => {
-    setDraft(createDraftFromItem(event.resource));
+    setDraft(createDraftFromEvent(event));
     setFormError("");
     setDialogOpen(true);
   }, []);
@@ -267,6 +310,46 @@ export function ItineraryCalendar() {
     };
   }, []);
 
+  function getSeriesUpdateInput(input: SaveItineraryItemInput) {
+    if (input.recurrence) {
+      return input;
+    }
+
+    return {
+      ...input,
+      deletedOccurrenceDates: [],
+      modifiedOccurrences: {},
+      recurrence: null,
+    };
+  }
+
+  function getEventSaveInput(
+    event: CalendarEvent,
+    input: Partial<SaveItineraryItemInput> = {},
+  ): SaveItineraryItemInput {
+    const occurrenceOverride =
+      event.resource.modifiedOccurrences[event.occurrenceDateKey ?? ""];
+
+    return {
+      allDay: input.allDay ?? event.allDay,
+      category: input.category ?? event.categoryId,
+      description:
+        input.description ??
+        occurrenceOverride?.description ??
+        event.resource.description,
+      endAt: input.endAt ?? event.end,
+      location: input.location ?? event.location,
+      startAt: input.startAt ?? event.start,
+      title: input.title ?? event.title,
+    };
+  }
+
+  function isRecurringDraftAction() {
+    return Boolean(
+      draft.isRecurring && draft.seriesItem && draft.occurrenceDateKey,
+    );
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -288,6 +371,15 @@ export function ItineraryCalendar() {
       return;
     }
 
+    if (
+      draft.recurrence?.preset === "custom" &&
+      draft.recurrence.end.mode === "onDate" &&
+      Number.isNaN(draft.recurrence.end.date.getTime())
+    ) {
+      setFormError(t("validation.recurrenceEndDateRequired"));
+      return;
+    }
+
     const input: SaveItineraryItemInput = {
       allDay: draft.allDay,
       category:
@@ -297,17 +389,23 @@ export function ItineraryCalendar() {
       description: draft.description.trim(),
       endAt: draft.endAt,
       location: draft.location.trim(),
+      recurrence: draft.recurrence,
       startAt: draft.startAt,
       title: draft.title.trim(),
     };
     const isEditing = Boolean(draft.id);
+
+    if (isEditing && isRecurringDraftAction()) {
+      setPendingRecurringAction({ input, kind: "save" });
+      return;
+    }
 
     void runToastOperation(
       async () => {
         if (isEditing && draft.id) {
           await updateItineraryItem({
             itineraryItemId: draft.id,
-            input,
+            input: getSeriesUpdateInput(input),
           });
           return;
         }
@@ -329,6 +427,11 @@ export function ItineraryCalendar() {
       return;
     }
 
+    if (isRecurringDraftAction()) {
+      setPendingRecurringAction({ kind: "delete" });
+      return;
+    }
+
     void runToastOperation(() => deleteItineraryItem(draft.id as string), {
       error: "itineraryDeleteFailed",
       success: "itineraryDeleteSuccess",
@@ -346,21 +449,116 @@ export function ItineraryCalendar() {
       return;
     }
 
+    const input = {
+      // DnD from the all-day row into the time grid omits `isAllDay`.
+      // In that case this is a timed event update, so force `allDay=false`.
+      allDay: typeof isAllDay === "boolean" ? isAllDay : false,
+      endAt: new Date(end),
+      startAt: new Date(start),
+    };
+
+    if (event.isRecurring && event.occurrenceDateKey) {
+      setPendingRecurringAction({
+        event,
+        input,
+        kind: "time",
+      });
+      return;
+    }
+
     void runToastOperation(
       () =>
         updateItineraryItem({
-          itineraryItemId: event.id,
-          input: {
-            allDay: isAllDay ?? event.allDay,
-            endAt: new Date(end),
-            startAt: new Date(start),
-          },
+          itineraryItemId: event.seriesId,
+          input,
         }),
       {
         error: "itineraryUpdateFailed",
         success: false,
       },
     ).catch(() => undefined);
+  }
+
+  function handleRecurringActionScope(scope: RecurringActionScope) {
+    if (!pendingRecurringAction) {
+      return;
+    }
+
+    const pendingAction = pendingRecurringAction;
+
+    void runToastOperation(
+      async () => {
+        if (pendingAction.kind === "save") {
+          if (scope === "one" && draft.seriesItem && draft.occurrenceDateKey) {
+            await updateItineraryOccurrence({
+              input: pendingAction.input,
+              itineraryItem: draft.seriesItem,
+              occurrenceDateKey: draft.occurrenceDateKey,
+            });
+            return;
+          }
+
+          if (draft.id) {
+            await updateItineraryItem({
+              itineraryItemId: draft.id,
+              input: getSeriesUpdateInput(pendingAction.input),
+            });
+          }
+          return;
+        }
+
+        if (pendingAction.kind === "delete") {
+          if (scope === "one" && draft.seriesItem && draft.occurrenceDateKey) {
+            await deleteItineraryOccurrence({
+              itineraryItem: draft.seriesItem,
+              occurrenceDateKey: draft.occurrenceDateKey,
+            });
+            return;
+          }
+
+          if (draft.id) {
+            await deleteItineraryItem(draft.id);
+          }
+          return;
+        }
+
+        if (scope === "one" && pendingAction.event.occurrenceDateKey) {
+          await updateItineraryOccurrence({
+            input: getEventSaveInput(pendingAction.event, pendingAction.input),
+            itineraryItem: pendingAction.event.resource,
+            occurrenceDateKey: pendingAction.event.occurrenceDateKey,
+          });
+          return;
+        }
+
+        await updateItineraryItem({
+          itineraryItemId: pendingAction.event.seriesId,
+          input: pendingAction.input,
+        });
+      },
+      {
+        error:
+          pendingAction.kind === "delete"
+            ? "itineraryDeleteFailed"
+            : "itineraryUpdateFailed",
+        success:
+          pendingAction.kind === "time"
+            ? false
+            : pendingAction.kind === "delete"
+              ? "itineraryDeleteSuccess"
+              : "itineraryUpdateSuccess",
+        onSuccess: () => {
+          if (
+            pendingAction.kind === "save" ||
+            pendingAction.kind === "delete"
+          ) {
+            setDialogOpen(false);
+          }
+        },
+      },
+    )
+      .catch(() => undefined)
+      .finally(() => setPendingRecurringAction(null));
   }
 
   function handleShareSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -538,7 +736,7 @@ export function ItineraryCalendar() {
         categoryMap={categoryMap}
         draft={draft}
         formError={formError}
-        isDeleting={isDeletingItineraryItem}
+        isDeleting={isDeleting}
         isSaving={isSaving}
         locale={locale}
         onDelete={handleDelete}
@@ -548,6 +746,45 @@ export function ItineraryCalendar() {
         setDraft={setDraft}
         t={t}
       />
+
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingRecurringAction(null);
+          }
+        }}
+        open={Boolean(pendingRecurringAction)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("recurrenceScope.title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingRecurringAction?.kind === "delete"
+                ? t("recurrenceScope.deleteDescription")
+                : t("recurrenceScope.editDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("recurrenceScope.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleRecurringActionScope("one")}
+              variant="outline"
+            >
+              {t("recurrenceScope.thisOccurrence")}
+            </AlertDialogAction>
+            <AlertDialogAction
+              onClick={() => handleRecurringActionScope("all")}
+              variant={
+                pendingRecurringAction?.kind === "delete"
+                  ? "destructive"
+                  : "default"
+              }
+            >
+              {t("recurrenceScope.allOccurrences")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <CalendarManagerDialog
         archivedCalendars={archivedCalendars}

@@ -105,10 +105,7 @@ export function ItineraryToolbar({
               <SelectContent>
                 <SelectGroup>
                   {TIME_GRID_STEPS.map((step) => (
-                    <SelectItem
-                      key={step}
-                      value={String(step)}
-                    >
+                    <SelectItem key={step} value={String(step)}>
                       {t(`interval.${step}`)}
                     </SelectItem>
                   ))}
@@ -128,7 +125,7 @@ export function ItineraryToolbar({
                   aria-pressed={view === calendarView}
                   className={cn(
                     view === calendarView &&
-                      "bg-primary ring-1 text-foreground hover:bg-primary/80 hover:text-foreground",
+                      "bg-primary ring-1 ring-primary text-foreground hover:bg-primary/80 hover:text-foreground",
                   )}
                   key={calendarView}
                   onClick={() => onView(calendarView as View)}

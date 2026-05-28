@@ -96,7 +96,10 @@ export function createDraftFromDates(startAt: Date, endAt: Date) {
     category: null,
     description: "",
     endAt,
+    isRecurring: false,
     location: "",
+    occurrenceDateKey: null,
+    recurrence: null,
     startAt,
     title: "",
   } satisfies ItineraryDraft;
@@ -110,8 +113,31 @@ export function createDraftFromItem(item: ItineraryItem) {
     description: item.description,
     endAt: item.endAt,
     location: item.location,
+    isRecurring: Boolean(item.recurrence),
+    occurrenceDateKey: null,
+    recurrence: item.recurrence,
+    seriesItem: item,
     startAt: item.startAt,
     title: item.title,
+  } satisfies ItineraryDraft;
+}
+
+export function createDraftFromEvent(event: CalendarEvent) {
+  return {
+    id: event.seriesId,
+    allDay: event.allDay,
+    category: event.categoryId,
+    description:
+      event.resource.modifiedOccurrences[event.occurrenceDateKey ?? ""]
+        ?.description ?? event.resource.description,
+    endAt: event.end,
+    isRecurring: event.isRecurring,
+    location: event.location,
+    occurrenceDateKey: event.occurrenceDateKey,
+    recurrence: event.resource.recurrence,
+    seriesItem: event.resource,
+    startAt: event.start,
+    title: event.title,
   } satisfies ItineraryDraft;
 }
 
@@ -128,38 +154,4 @@ export function getVisibleCategoryIds(
     categoryFilterIds?.filter((categoryId) => categoryMap.has(categoryId)) ??
     categories.map((category) => category.id)
   );
-}
-
-export function toCalendarEvents(
-  itineraryItems: ItineraryItem[],
-  categoryMap: CategoryLookup,
-  visibleCategoryIdSet: Set<string>,
-  isUncategorizedFilterVisible: boolean,
-) {
-  return itineraryItems
-    .filter((item) => {
-      const category = item.category ? categoryMap.get(item.category) : null;
-
-      if (!category) {
-        return isUncategorizedFilterVisible;
-      }
-
-      return visibleCategoryIdSet.has(category.id);
-    })
-    .map((item): CalendarEvent => {
-      const category = item.category ? categoryMap.get(item.category) : null;
-
-      return {
-        id: item.id,
-        allDay: item.allDay,
-        categoryColor: category?.color ?? null,
-        categoryId: category?.id ?? null,
-        categoryName: category?.name ?? null,
-        end: item.endAt,
-        location: item.location,
-        resource: item,
-        start: item.startAt,
-        title: item.title,
-      };
-    });
 }

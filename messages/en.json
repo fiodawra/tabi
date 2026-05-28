@@ -177,6 +177,53 @@
       "allDayHint": "Show this item at the top of the day.",
       "description": "Description"
     },
+    "recurrence": {
+      "label": "Repeat",
+      "hint": "Repeat this item across matching days.",
+      "repeatEvery": "Repeat every",
+      "frequency": "Frequency",
+      "repeatOn": "Repeat on",
+      "end": "Ends",
+      "untilDate": "Until date",
+      "afterCount": "Occurrences",
+      "presets": {
+        "none": "Does not repeat",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "weekdays": "Every weekday",
+        "weekends": "Every weekend",
+        "custom": "Custom"
+      },
+      "frequencies": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month",
+        "year": "Year"
+      },
+      "weekdays": {
+        "0": "Sun",
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat"
+      },
+      "ends": {
+        "never": "Never",
+        "onDate": "On date",
+        "afterCount": "After"
+      }
+    },
+    "recurrenceScope": {
+      "title": "Update recurring item",
+      "editDescription": "Apply this change only to the selected occurrence or to the whole series.",
+      "deleteDescription": "Delete only the selected occurrence or the whole series.",
+      "cancel": "Cancel",
+      "thisOccurrence": "This occurrence",
+      "allOccurrences": "All occurrences"
+    },
     "placeholders": {
       "title": "Morning flight",
       "location": "Airport, hotel, restaurant...",
@@ -191,7 +238,8 @@
     },
     "validation": {
       "titleRequired": "Add a title before saving.",
-      "endAfterStart": "End time must be after start time."
+      "endAfterStart": "End time must be after start time.",
+      "recurrenceEndDateRequired": "Choose a valid repeat end date."
     }
   },
   "ThemeToast": {

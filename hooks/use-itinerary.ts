@@ -2,6 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import {
+  getOccurrenceDeletePatch,
+  getOccurrenceUpdatePatch,
+} from "@/components/itinerary/itinerary-recurrence";
 import type { CalendarSummary } from "@/services/calendar-sharing-service";
 import {
   createItineraryItem,
@@ -26,6 +30,20 @@ function sortItineraryItems(items: ItineraryItem[]) {
   return [...items].sort((firstItem, secondItem) => {
     return firstItem.startAt.getTime() - secondItem.startAt.getTime();
   });
+}
+
+function updateCachedItineraryItem(
+  items: ItineraryItem[],
+  itineraryItemId: string,
+  input: Partial<ItineraryItem>,
+) {
+  return sortItineraryItems(
+    items.map((item) =>
+      item.id === itineraryItemId
+        ? { ...item, ...input, updatedAt: new Date() }
+        : item,
+    ),
+  );
 }
 
 export function useItinerary(selectedCalendar?: CalendarSummary | null) {
@@ -96,7 +114,10 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
         const optimisticItem: ItineraryItem = {
           ...input,
           category: input.category ?? null,
+          deletedOccurrenceDates: input.deletedOccurrenceDates ?? [],
           id: `optimistic-${Date.now()}`,
+          modifiedOccurrences: input.modifiedOccurrences ?? {},
+          recurrence: input.recurrence ?? null,
           createdAt: new Date(),
           updatedAt: new Date(),
           userId: calendarId,
@@ -136,13 +157,7 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
 
       queryClient.setQueryData<ItineraryItem[]>(
         queryKey,
-        sortItineraryItems(
-          previousItems.map((item) =>
-            item.id === itineraryItemId
-              ? { ...item, ...input, updatedAt: new Date() }
-              : item,
-          ),
-        ),
+        updateCachedItineraryItem(previousItems, itineraryItemId, input),
       );
 
       return { previousItems };
@@ -183,17 +198,100 @@ export function useItinerary(selectedCalendar?: CalendarSummary | null) {
     },
   });
 
+  const updateItineraryOccurrenceMutation = useMutation({
+    mutationFn: async (input: {
+      input: SaveItineraryItemInput;
+      itineraryItem: ItineraryItem;
+      occurrenceDateKey: string;
+    }) => {
+      if (!hasCalendarWriteAccess) {
+        throw new Error("Calendar write access is required.");
+      }
+
+      return updateItineraryItem(
+        input.itineraryItem.id,
+        getOccurrenceUpdatePatch(
+          input.itineraryItem,
+          input.occurrenceDateKey,
+          input.input,
+        ),
+      );
+    },
+    onMutate: async ({ input, itineraryItem, occurrenceDateKey }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previousItems =
+        queryClient.getQueryData<ItineraryItem[]>(queryKey) ?? [];
+      const patch = getOccurrenceUpdatePatch(
+        itineraryItem,
+        occurrenceDateKey,
+        input,
+      );
+
+      queryClient.setQueryData<ItineraryItem[]>(
+        queryKey,
+        updateCachedItineraryItem(previousItems, itineraryItem.id, patch),
+      );
+
+      return { previousItems };
+    },
+    onError: (_error, _input, context) => {
+      queryClient.setQueryData(queryKey, context?.previousItems ?? []);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  const deleteItineraryOccurrenceMutation = useMutation({
+    mutationFn: async (input: {
+      itineraryItem: ItineraryItem;
+      occurrenceDateKey: string;
+    }) => {
+      if (!hasCalendarWriteAccess) {
+        throw new Error("Calendar write access is required.");
+      }
+
+      return updateItineraryItem(
+        input.itineraryItem.id,
+        getOccurrenceDeletePatch(input.itineraryItem, input.occurrenceDateKey),
+      );
+    },
+    onMutate: async ({ itineraryItem, occurrenceDateKey }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previousItems =
+        queryClient.getQueryData<ItineraryItem[]>(queryKey) ?? [];
+      const patch = getOccurrenceDeletePatch(itineraryItem, occurrenceDateKey);
+
+      queryClient.setQueryData<ItineraryItem[]>(
+        queryKey,
+        updateCachedItineraryItem(previousItems, itineraryItem.id, patch),
+      );
+
+      return { previousItems };
+    },
+    onError: (_error, _input, context) => {
+      queryClient.setQueryData(queryKey, context?.previousItems ?? []);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
   return {
     createItineraryItem: createItineraryItemMutation.mutateAsync,
+    deleteItineraryOccurrence: deleteItineraryOccurrenceMutation.mutateAsync,
     deleteItineraryItem: deleteItineraryItemMutation.mutateAsync,
     itineraryItems: itineraryQuery.data ?? [],
     itineraryRealtimeError: realtimeError,
     isCreatingItineraryItem: createItineraryItemMutation.isPending,
     isDeletingItineraryItem: deleteItineraryItemMutation.isPending,
+    isDeletingItineraryOccurrence: deleteItineraryOccurrenceMutation.isPending,
     isItineraryLoading:
       itineraryQuery.isLoading ||
       (!!user?.uid && !!calendarId && !hasRealtimeSnapshot),
     isUpdatingItineraryItem: updateItineraryItemMutation.isPending,
+    isUpdatingItineraryOccurrence: updateItineraryOccurrenceMutation.isPending,
+    updateItineraryOccurrence: updateItineraryOccurrenceMutation.mutateAsync,
     updateItineraryItem: updateItineraryItemMutation.mutateAsync,
   };
 }

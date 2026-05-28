@@ -9,6 +9,7 @@ import { useItinerary } from "@/hooks/use-itinerary";
 import { useItineraryCategories } from "@/hooks/use-itinerary-categories";
 import { useItineraryUiStore } from "@/stores/itinerary-ui-store";
 import { CategoryManagerDialog } from "./category-manager-dialog";
+import { getUpcomingExpansionRange } from "./itinerary-recurrence";
 import { ItinerarySidebar } from "./itinerary-sidebar";
 import {
   ItinerarySidebarActionsProvider,
@@ -75,6 +76,7 @@ function ItineraryRouteShell({ children }: ItineraryShellProps) {
   const setUncategorizedFilter = useItineraryUiStore(
     (state) => state.setUncategorizedFilter,
   );
+  const upcomingRange = useMemo(() => getUpcomingExpansionRange(), []);
 
   const { events, visibleCategoryIds, visibleCategoryIdSet } =
     useItineraryEvents({
@@ -82,6 +84,8 @@ function ItineraryRouteShell({ children }: ItineraryShellProps) {
       categoryFilterIds,
       isUncategorizedFilterVisible,
       itineraryItems,
+      rangeEnd: upcomingRange.rangeEnd,
+      rangeStart: upcomingRange.rangeStart,
     });
   const upcomingEvents = useMemo(
     () =>

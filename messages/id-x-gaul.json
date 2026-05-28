@@ -177,6 +177,53 @@
       "allDayHint": "Tampilin item ini di atas hari.",
       "description": "Deskripsi"
     },
+    "recurrence": {
+      "label": "Ulangi",
+      "hint": "Bikin item ini muncul lagi di hari yang cocok.",
+      "repeatEvery": "Ulang tiap",
+      "frequency": "Frekuensi",
+      "repeatOn": "Ulang di",
+      "end": "Berakhir",
+      "untilDate": "Sampai tanggal",
+      "afterCount": "Jumlah kemunculan",
+      "presets": {
+        "none": "Ga diulang",
+        "daily": "Harian",
+        "weekly": "Mingguan",
+        "monthly": "Bulanan",
+        "weekdays": "Tiap weekday",
+        "weekends": "Tiap weekend",
+        "custom": "Custom"
+      },
+      "frequencies": {
+        "day": "Hari",
+        "week": "Minggu",
+        "month": "Bulan",
+        "year": "Tahun"
+      },
+      "weekdays": {
+        "0": "Min",
+        "1": "Sen",
+        "2": "Sel",
+        "3": "Rab",
+        "4": "Kam",
+        "5": "Jum",
+        "6": "Sab"
+      },
+      "ends": {
+        "never": "Ga pernah",
+        "onDate": "Di tanggal",
+        "afterCount": "Setelah"
+      }
+    },
+    "recurrenceScope": {
+      "title": "Update item berulang",
+      "editDescription": "Apply perubahan ini cuma ke kemunculan yang dipilih atau ke semua rangkaiannya.",
+      "deleteDescription": "Hapus cuma kemunculan yang dipilih atau semua rangkaiannya.",
+      "cancel": "Batal",
+      "thisOccurrence": "Kemunculan ini",
+      "allOccurrences": "Semua kemunculan"
+    },
     "placeholders": {
       "title": "Flight pagi",
       "location": "Bandara, hotel, resto...",
@@ -191,7 +238,8 @@
     },
     "validation": {
       "titleRequired": "Judulnya isi dulu sebelum disimpan.",
-      "endAfterStart": "Waktu selesai harus setelah waktu mulai."
+      "endAfterStart": "Waktu selesai harus setelah waktu mulai.",
+      "recurrenceEndDateRequired": "Pilih tanggal akhir pengulangan yang valid."
     }
   },
   "ThemeToast": {
