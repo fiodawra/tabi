@@ -1,7 +1,66 @@
 {
   "HomePage": {
-    "welcome": "Selamat datang di Tabi!",
-    "fyi": "FYI: \"Tabi\" adalah kata dari bahasa Jepang yang berarti \"perjalanan\" atau \"travel.\" Nama ini dipilih karena aplikasi ini dibuat untuk membantu kamu merencanakan perjalanan yang bermakna, menyusun itinerary dengan rapi, dan menikmati pengalaman dari awal sampai akhir."
+    "hero": {
+      "eyebrow": "Tabi berarti perjalanan",
+      "title": "Rencanakan trip yang terasa punya arah sejak ide pertama.",
+      "description": "Tabi membantumu menyusun perjalanan yang bermakna, menjaga tiap hari tetap rapi, dan menikmati petualangan dari awal sampai akhir.",
+      "ctaSignedOut": "Mulai merencanakan",
+      "ctaSignedIn": "Buka itinerary",
+      "secondaryCta": "Lihat itinerary",
+      "imageAlt": "Meja perencanaan perjalanan minimal dengan pratinjau peta itinerary"
+    },
+    "points": {
+      "meaningful": {
+        "title": "Mulai dengan tujuan",
+        "description": "Kumpulkan tempat, catatan, dan hal kecil yang membuat trip terasa layak diingat."
+      },
+      "organized": {
+        "title": "Hari lebih jelas",
+        "description": "Susun tempat, makan, perpindahan, dan booking dalam satu itinerary yang mudah dibaca."
+      },
+      "enjoyable": {
+        "title": "Jalan lebih ringan",
+        "description": "Kurangi waktu mencari detail agar kamu bisa lebih hadir di perjalanan."
+      }
+    },
+    "preview": {
+      "eyebrow": "Papan perjalanan",
+      "title": "Tempat yang tenang untuk tiap stop, booking, dan catatan.",
+      "description": "Tampilan ini mencerminkan cara Tabi bekerja: struktur yang tenang, langkah berikutnya yang jelas, dan detail secukupnya agar trip tetap berjalan.",
+      "cardTitle": "Rute musim semi Kyoto",
+      "cardDescription": "Pratinjau itinerary ringkas untuk satu hari yang bermakna.",
+      "stats": {
+        "days": {
+          "label": "Hari",
+          "value": "5"
+        },
+        "stops": {
+          "label": "Stop",
+          "value": "18"
+        },
+        "shared": {
+          "label": "Dibagi",
+          "value": "2"
+        }
+      },
+      "steps": {
+        "arrival": {
+          "title": "Tiba dekat sungai",
+          "description": "Check-in, titip tas, dan simpan catatan booking.",
+          "time": "09.30"
+        },
+        "neighborhood": {
+          "title": "Jalan di area lama",
+          "description": "Kelompokkan tempat makan, kuil, dan spot foto terdekat.",
+          "time": "13.00"
+        },
+        "memory": {
+          "title": "Simpan catatan hari ini",
+          "description": "Simpan pengingat kecil dari rute perjalanan.",
+          "time": "20.15"
+        }
+      }
+    }
   },
   "DashboardPage": {
     "title": "Dasbor",

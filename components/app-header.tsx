@@ -5,6 +5,7 @@ import { HeaderAuth } from "@/components/header-auth";
 import { HeaderSearch } from "@/components/header-search";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Separator } from "./ui/separator";
 
 export function AppHeader() {
   return (

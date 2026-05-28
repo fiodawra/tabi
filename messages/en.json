@@ -1,7 +1,66 @@
 {
   "HomePage": {
-    "welcome": "Welcome to Tabi!",
-    "fyi": "FYI: \"Tabi\" is a Japanese word that means \"journey\" or \"travel.\" We chose this name because the app is all about helping you plan meaningful trips, keep your itinerary organized, and enjoy the whole adventure from start to finish."
+    "hero": {
+      "eyebrow": "Tabi means journey",
+      "title": "Plan trips that feel intentional from the first idea.",
+      "description": "Tabi helps you shape meaningful travel plans, keep each day organized, and enjoy the adventure from start to finish.",
+      "ctaSignedOut": "Start planning",
+      "ctaSignedIn": "Open itinerary",
+      "secondaryCta": "View itinerary",
+      "imageAlt": "Minimal travel planning desk with an itinerary map preview"
+    },
+    "points": {
+      "meaningful": {
+        "title": "Begin with purpose",
+        "description": "Collect places, notes, and small rituals around the kind of trip you want to remember."
+      },
+      "organized": {
+        "title": "Keep days clear",
+        "description": "Arrange stops, meals, transfers, and bookings in one readable itinerary."
+      },
+      "enjoyable": {
+        "title": "Travel lighter",
+        "description": "Spend less energy hunting for details and more time inside the journey itself."
+      }
+    },
+    "preview": {
+      "eyebrow": "Journey board",
+      "title": "A calm place for every stop, booking, and note.",
+      "description": "The landing view mirrors the way Tabi works: quiet structure, clear next steps, and just enough detail to keep a trip moving.",
+      "cardTitle": "Kyoto spring route",
+      "cardDescription": "A compact itinerary preview for a meaningful day.",
+      "stats": {
+        "days": {
+          "label": "Days",
+          "value": "5"
+        },
+        "stops": {
+          "label": "Stops",
+          "value": "18"
+        },
+        "shared": {
+          "label": "Shared",
+          "value": "2"
+        }
+      },
+      "steps": {
+        "arrival": {
+          "title": "Arrive near the river",
+          "description": "Check in, drop bags, and save the booking note.",
+          "time": "09:30"
+        },
+        "neighborhood": {
+          "title": "Walk the old streets",
+          "description": "Group nearby food, temples, and photo stops.",
+          "time": "13:00"
+        },
+        "memory": {
+          "title": "Save the day note",
+          "description": "Keep a small reminder from the route.",
+          "time": "20:15"
+        }
+      }
+    }
   },
   "DashboardPage": {
     "title": "Dashboard",

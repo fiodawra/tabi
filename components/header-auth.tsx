@@ -1,6 +1,12 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import {
+  KanbanSquareIcon,
+  LogInIcon,
+  LogOut,
+  PenSquareIcon,
+  UserPenIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -87,8 +93,13 @@ export function HeaderAuth() {
 
   if (!user) {
     return (
-      <Button type="button" size="sm" onClick={() => void handleSignIn()}>
-        {t("signInWithGoogle")}
+      <Button
+        aria-label={t("signInWithGoogle")}
+        className="rounded-full "
+        size="icon-lg"
+        onClick={() => void handleSignIn()}
+      >
+        <LogInIcon />
       </Button>
     );
   }
@@ -111,37 +122,56 @@ export function HeaderAuth() {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuContent
+          align="end"
+          className="w-64"
+        >
           <DropdownMenuLabel className="space-y-1">
             <div className="text-sm font-medium">
               {profile?.name || user.displayName || t("avatarAlt")}
             </div>
             <div className="text-xs text-muted-foreground">{user.email}</div>
-            <Badge variant="secondary" className="mt-1">
+            <Badge
+              variant="secondary"
+              className="mt-1"
+            >
               {profile?.level === "admin" ? t("admin") : t("member")}
             </Badge>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href="/feedback">{t("feedback")}</Link>
+            <Link href="/feedback">
+              <PenSquareIcon className="h-4 w-4" />
+              {t("feedback")}
+            </Link>
           </DropdownMenuItem>
           {profile?.level === "admin" ? (
             <DropdownMenuItem asChild>
-              <Link href="/dashboard">{t("dashboard")}</Link>
+              <Link href="/dashboard">
+                <KanbanSquareIcon className="h-4 w-4" />
+                {t("dashboard")}
+              </Link>
             </DropdownMenuItem>
           ) : null}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setIsEditProfileOpen(true)}>
+            <UserPenIcon className="h-4 w-4" />
             {t("editProfile")}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => void handleSignOut()}>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => void handleSignOut()}
+          >
             <LogOut className="h-4 w-4" />
             {t("signOut")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Sheet open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
+      <Sheet
+        open={isEditProfileOpen}
+        onOpenChange={setIsEditProfileOpen}
+      >
         <SheetContent side="right">
           <SheetHeader>
             <SheetTitle>{t("editProfile")}</SheetTitle>
@@ -171,7 +201,10 @@ export function HeaderAuth() {
           </div>
           <SheetFooter>
             <SheetClose asChild>
-              <Button type="button" variant="ghost">
+              <Button
+                type="button"
+                variant="ghost"
+              >
                 {t("cancel")}
               </Button>
             </SheetClose>

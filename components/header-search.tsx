@@ -7,12 +7,13 @@ import {
 } from "@tanstack/react-hotkeys";
 import {
   CalendarDaysIcon,
-  GridIcon,
   HomeIcon,
+  KanbanSquareIcon,
   LanguagesIcon,
   type LucideIcon,
   MonitorIcon,
   MoonIcon,
+  PenSquareIcon,
   SearchIcon,
   SunIcon,
 } from "lucide-react";
@@ -84,12 +85,12 @@ export function HeaderSearch() {
           shortcut: { key: "h", ctrl: true, alt: true },
         },
         {
-          icon: GridIcon,
+          icon: KanbanSquareIcon,
           label: t("item.goDashboard"),
           onClick: () => goTo("/dashboard"),
         },
         {
-          icon: GridIcon,
+          icon: PenSquareIcon,
           label: t("item.goFeedback"),
           onClick: () => goTo("/feedback"),
         },

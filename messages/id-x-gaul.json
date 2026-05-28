@@ -1,7 +1,66 @@
 {
   "HomePage": {
-    "welcome": "Wih, welcome di Tabi :v",
-    "fyi": "FYI dikit: \"Tabi\" itu kata Jepang, artinya \"journey\" alias \"travel.\" Namanya dipake karena app ini fokus bantu lo nyusun trip yang niat, itinerary tetep rapih, dan vibes jalan-jalan dari awal sampe pulang tetep enak."
+    "hero": {
+      "eyebrow": "Tabi itu artinya perjalanan",
+      "title": "Susun trip yang niat dari ide pertama.",
+      "description": "Tabi bantu lo bikin perjalanan yang lebih bermakna, itinerary tetep rapih, dan vibes jalan-jalan dari awal sampe pulang tetap enak.",
+      "ctaSignedOut": "Mulai planning",
+      "ctaSignedIn": "Buka itinerary",
+      "secondaryCta": "Lihat itinerary",
+      "imageAlt": "Meja planning trip minimal dengan preview peta itinerary"
+    },
+    "points": {
+      "meaningful": {
+        "title": "Mulai dari niatnya",
+        "description": "Kumpulin tempat, notes, dan detail kecil yang bikin trip lo kerasa memorable."
+      },
+      "organized": {
+        "title": "Hari-hari lebih rapi",
+        "description": "Atur spot, makan, pindahan, sama booking dalam satu itinerary yang gampang dibaca."
+      },
+      "enjoyable": {
+        "title": "Jalan lebih enteng",
+        "description": "Ga kebanyakan nyari detail, jadi lo bisa lebih nikmatin perjalanannya."
+      }
+    },
+    "preview": {
+      "eyebrow": "Papan perjalanan",
+      "title": "Tempat adem buat tiap stop, booking, dan notes.",
+      "description": "Vibes halaman ini ngikut cara Tabi kerja: struktur kalem, next step jelas, dan detail secukupnya biar trip tetap jalan.",
+      "cardTitle": "Rute Kyoto spring",
+      "cardDescription": "Preview itinerary singkat buat satu hari yang niat.",
+      "stats": {
+        "days": {
+          "label": "Hari",
+          "value": "5"
+        },
+        "stops": {
+          "label": "Stop",
+          "value": "18"
+        },
+        "shared": {
+          "label": "Share",
+          "value": "2"
+        }
+      },
+      "steps": {
+        "arrival": {
+          "title": "Tiba dekat sungai",
+          "description": "Check-in, titip tas, terus simpan notes booking.",
+          "time": "09.30"
+        },
+        "neighborhood": {
+          "title": "Jalan di area lama",
+          "description": "Gabungin spot makan, kuil, sama tempat foto terdekat.",
+          "time": "13.00"
+        },
+        "memory": {
+          "title": "Simpan notes hari ini",
+          "description": "Catat pengingat kecil dari rute hari ini.",
+          "time": "20.15"
+        }
+      }
+    }
   },
   "DashboardPage": {
     "title": "Dashboard Gaul",
