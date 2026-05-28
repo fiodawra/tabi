@@ -63,7 +63,7 @@
   flex: 1 1 0;
   min-height: 0;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .tabi-itinerary-calendar
@@ -128,16 +128,18 @@
   max-width: var(--itinerary-time-gutter-width) !important;
 }
 
-.tabi-itinerary-calendar .rbc-time-header.rbc-overflowing {
+.tabi-itinerary-calendar .rbc-time-header {
   border-right: 0;
-  /* biome-ignore lint/complexity/noImportantStyles: Match React Big Calendar's all-day gutter to the custom scrollbar width. */
+  /* biome-ignore lint/complexity/noImportantStyles: Keep React Big Calendar's all-day gutter aligned with the always-visible time-grid scrollbar. */
   margin-right: var(--itinerary-scrollbar-size) !important;
 }
 
-.tabi-itinerary-calendar .rbc-rtl .rbc-time-header.rbc-overflowing {
+.tabi-itinerary-calendar .rbc-rtl .rbc-time-header {
   border-left: 0;
-  /* biome-ignore lint/complexity/noImportantStyles: Match React Big Calendar's RTL all-day gutter to the custom scrollbar width. */
+  /* biome-ignore lint/complexity/noImportantStyles: Keep React Big Calendar's RTL all-day gutter aligned with the always-visible time-grid scrollbar. */
   margin-left: var(--itinerary-scrollbar-size) !important;
+  /* biome-ignore lint/complexity/noImportantStyles: Reset LTR compensation when the calendar is rendered in RTL mode. */
+  margin-right: 0 !important;
 }
 
 .tabi-itinerary-calendar .rbc-time-column .rbc-timeslot-group {
