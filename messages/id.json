@@ -44,6 +44,8 @@
     "calendarSelector": {
       "ariaLabel": "Pilih kalender",
       "placeholder": "Pilih kalender",
+      "ownGroup": "Kalender milikmu",
+      "sharedGroup": "Kalender bersama",
       "shared": "Kalender bersama",
       "owner": "Pemilik",
       "current": "Melihat sebagai {access}"
@@ -141,6 +143,28 @@
       "edit": "Edit",
       "delete": "Hapus",
       "empty": "Buat kategori untuk memberi warna pada item itinerary.",
+      "colors": {
+        "slate": "Slate",
+        "zinc": "Zinc",
+        "stone": "Stone",
+        "red": "Merah",
+        "orange": "Oranye",
+        "amber": "Amber",
+        "yellow": "Kuning",
+        "lime": "Lime",
+        "green": "Hijau",
+        "emerald": "Emerald",
+        "teal": "Teal",
+        "cyan": "Cyan",
+        "sky": "Langit",
+        "blue": "Biru",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "purple": "Ungu",
+        "fuchsia": "Fuchsia",
+        "pink": "Pink",
+        "rose": "Rose"
+      },
       "errors": {
         "category-color-required": "Pilih warna kategori.",
         "category-name-required": "Masukkan nama kategori.",

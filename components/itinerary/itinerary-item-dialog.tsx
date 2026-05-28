@@ -71,6 +71,25 @@ type ItineraryItemDialogProps = {
   t: (key: string) => string;
 };
 
+function CategorySelectOption({
+  color,
+  label,
+}: {
+  color: string;
+  label: string;
+}) {
+  return (
+    <span className="flex min-w-0 items-center gap-2">
+      <span
+        aria-hidden
+        className="size-3 shrink-0 rounded-full ring-1 ring-foreground/10"
+        style={{ backgroundColor: color }}
+      />
+      <span className="truncate">{label}</span>
+    </span>
+  );
+}
+
 function getCustomRecurrence(
   recurrence: ItineraryRecurrence | null,
   startAt: Date,
@@ -244,11 +263,17 @@ export function ItineraryItemDialog({
                       <SelectContent>
                         <SelectGroup>
                           <SelectItem value={UNCATEGORIZED_VALUE}>
-                            {t("category.uncategorized")}
+                            <CategorySelectOption
+                              color="var(--muted-foreground)"
+                              label={t("category.uncategorized")}
+                            />
                           </SelectItem>
                           {categories.map((category) => (
                             <SelectItem key={category.id} value={category.id}>
-                              {category.name}
+                              <CategorySelectOption
+                                color={category.color}
+                                label={category.name}
+                              />
                             </SelectItem>
                           ))}
                         </SelectGroup>

@@ -44,8 +44,34 @@ type ItineraryCategoryDocument = {
 };
 
 const ITINERARY_CATEGORIES_COLLECTION = "itineraryCategories";
-const DEFAULT_CATEGORY_COLOR = "#2563eb";
+export const PREDEFINED_CATEGORY_COLORS = [
+  { id: "slate", value: "#475569" },
+  { id: "zinc", value: "#52525b" },
+  { id: "stone", value: "#57534e" },
+  { id: "red", value: "#dc2626" },
+  { id: "orange", value: "#ea580c" },
+  { id: "amber", value: "#d97706" },
+  { id: "yellow", value: "#ca8a04" },
+  { id: "lime", value: "#65a30d" },
+  { id: "green", value: "#16a34a" },
+  { id: "emerald", value: "#059669" },
+  { id: "teal", value: "#0d9488" },
+  { id: "cyan", value: "#0891b2" },
+  { id: "sky", value: "#0284c7" },
+  { id: "blue", value: "#2563eb" },
+  { id: "indigo", value: "#4f46e5" },
+  { id: "violet", value: "#7c3aed" },
+  { id: "purple", value: "#9333ea" },
+  { id: "fuchsia", value: "#c026d3" },
+  { id: "pink", value: "#db2777" },
+  { id: "rose", value: "#e11d48" },
+] as const;
+
+export const DEFAULT_CATEGORY_COLOR = "#2563eb";
 const HEX_COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
+const PREDEFINED_CATEGORY_COLOR_VALUES = new Set<string>(
+  PREDEFINED_CATEGORY_COLORS.map((color) => color.value),
+);
 
 export class ItineraryCategoryError extends Error {
   code: ItineraryCategoryErrorCode;
@@ -78,13 +104,32 @@ function readOptionalDate(value: unknown): Date | undefined {
 }
 
 function normalizeColor(color: string) {
-  const nextColor = color.trim();
+  const nextColor = color.trim().toLowerCase();
 
   if (!nextColor) {
     throw new ItineraryCategoryError("category-color-required");
   }
 
-  return HEX_COLOR_PATTERN.test(nextColor) ? nextColor : DEFAULT_CATEGORY_COLOR;
+  if (
+    HEX_COLOR_PATTERN.test(nextColor) &&
+    PREDEFINED_CATEGORY_COLOR_VALUES.has(nextColor)
+  ) {
+    return nextColor;
+  }
+
+  return DEFAULT_CATEGORY_COLOR;
+}
+
+function readCategoryColor(value: unknown) {
+  if (typeof value !== "string") {
+    return DEFAULT_CATEGORY_COLOR;
+  }
+
+  const color = value.trim().toLowerCase();
+
+  return PREDEFINED_CATEGORY_COLOR_VALUES.has(color)
+    ? color
+    : DEFAULT_CATEGORY_COLOR;
 }
 
 function toItineraryCategory(
@@ -95,7 +140,7 @@ function toItineraryCategory(
   return {
     id: categoryDoc.id,
     calendarId: data.calendarId ?? "",
-    color: data.color ?? DEFAULT_CATEGORY_COLOR,
+    color: readCategoryColor(data.color),
     createdAt: readOptionalDate(data.createdAt),
     name: data.name ?? "",
     updatedAt: readOptionalDate(data.updatedAt),

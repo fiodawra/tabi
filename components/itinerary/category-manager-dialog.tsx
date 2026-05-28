@@ -18,13 +18,24 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useToastOperation } from "@/hooks/use-toast-operation";
 import type {
   ItineraryCategory,
   SaveItineraryCategoryInput,
 } from "@/services/itinerary-category-service";
-import { DEFAULT_CATEGORY_COLOR } from "./itinerary-constants";
+import {
+  DEFAULT_CATEGORY_COLOR,
+  PREDEFINED_CATEGORY_COLORS,
+} from "@/services/itinerary-category-service";
 import { getCategoryErrorMessage } from "./itinerary-utils";
 
 type CategoryManagerDialogProps = {
@@ -41,6 +52,25 @@ type CategoryManagerDialogProps = {
     input: SaveItineraryCategoryInput & { categoryId: string },
   ) => Promise<unknown>;
 };
+
+function CategoryColorOption({
+  color,
+  label,
+}: {
+  color: string;
+  label: string;
+}) {
+  return (
+    <span className="flex min-w-0 items-center gap-2">
+      <span
+        aria-hidden
+        className="size-3 shrink-0 rounded-full ring-1 ring-foreground/10"
+        style={{ backgroundColor: color }}
+      />
+      <span className="truncate">{label}</span>
+    </span>
+  );
+}
 
 export function CategoryManagerDialog({
   canEdit,
@@ -131,7 +161,7 @@ export function CategoryManagerDialog({
 
         <form className="flex flex-col gap-4" onSubmit={handleCategorySubmit}>
           <FieldGroup>
-            <div className="grid gap-4 md:grid-cols-[1fr_5rem]">
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(12rem,0.6fr)]">
               <Field>
                 <FieldLabel htmlFor="category-name">
                   {t("categoryManager.name")}
@@ -148,17 +178,28 @@ export function CategoryManagerDialog({
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="category-color">
-                  {t("categoryManager.color")}
-                </FieldLabel>
-                <Input
-                  className="h-10 p-1"
+                <FieldLabel>{t("categoryManager.color")}</FieldLabel>
+                <Select
                   disabled={!canEdit || isSavingCategory}
-                  id="category-color"
-                  onChange={(event) => setCategoryColor(event.target.value)}
-                  type="color"
+                  onValueChange={setCategoryColor}
                   value={categoryColor}
-                />
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {PREDEFINED_CATEGORY_COLORS.map((color) => (
+                        <SelectItem key={color.id} value={color.value}>
+                          <CategoryColorOption
+                            color={color.value}
+                            label={t(`categoryManager.colors.${color.id}`)}
+                          />
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
             </div>
             <FieldError>{categoryError}</FieldError>

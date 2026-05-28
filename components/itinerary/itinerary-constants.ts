@@ -43,4 +43,3 @@ export const TIMESLOTS_BY_STEP: Record<TimeGridStep, number> = {
 export const CALENDAR_ROLES: CalendarRole[] = ["viewer", "editor"];
 export const UNCATEGORIZED_VALUE = "__uncategorized__";
 export const DEFAULT_EVENT_COLOR = "var(--muted-foreground)";
-export const DEFAULT_CATEGORY_COLOR = "#2563eb";

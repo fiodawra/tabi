@@ -9,6 +9,7 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -75,6 +76,28 @@ export function ItinerarySidebar({
   upcomingEvents,
   visibleCategoryIdSet,
 }: ItinerarySidebarProps) {
+  const ownedCalendars = calendars.filter(
+    (calendar) => calendar.access === "owner",
+  );
+  const sharedCalendars = calendars.filter(
+    (calendar) => calendar.access !== "owner",
+  );
+
+  function renderCalendarItem(calendar: CalendarSummary) {
+    return (
+      <SelectItem key={calendar.id} value={calendar.id}>
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="truncate">{getCalendarLabel(calendar, t)}</span>
+          <Badge variant="secondary">
+            {calendar.access === "owner"
+              ? t("access.owner")
+              : t(`access.${calendar.access}`)}
+          </Badge>
+        </span>
+      </SelectItem>
+    );
+  }
+
   return (
     <Sidebar className="border-r" collapsible="offcanvas">
       <SidebarHeader className="border-b p-3">
@@ -91,22 +114,18 @@ export function ItinerarySidebar({
               <SelectValue placeholder={t("calendarSelector.placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectGroup>
-                {calendars.map((calendar) => (
-                  <SelectItem key={calendar.id} value={calendar.id}>
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span className="truncate">
-                        {getCalendarLabel(calendar, t)}
-                      </span>
-                      <Badge variant="secondary">
-                        {calendar.access === "owner"
-                          ? t("access.owner")
-                          : t(`access.${calendar.access}`)}
-                      </Badge>
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectGroup>
+              {ownedCalendars.length > 0 ? (
+                <SelectGroup>
+                  <SelectLabel>{t("calendarSelector.ownGroup")}</SelectLabel>
+                  {ownedCalendars.map(renderCalendarItem)}
+                </SelectGroup>
+              ) : null}
+              {sharedCalendars.length > 0 ? (
+                <SelectGroup>
+                  <SelectLabel>{t("calendarSelector.sharedGroup")}</SelectLabel>
+                  {sharedCalendars.map(renderCalendarItem)}
+                </SelectGroup>
+              ) : null}
             </SelectContent>
           </Select>
 

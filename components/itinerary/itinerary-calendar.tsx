@@ -671,10 +671,13 @@ export function ItineraryCalendar() {
         </div>
       ) : null}
 
-      {hasActiveCalendars && !isItineraryLoading && events.length === 0 ? (
+      {hasActiveCalendars &&
+      !isItineraryLoading &&
+      events.length === 0 &&
+      itineraryItems.length > 0 ? (
         <ItineraryItemsEmptyState
           canCreate={canEditSelectedCalendar}
-          hasItems={itineraryItems.length > 0}
+          hasItems
           onCreate={openCreateDialog}
           t={t}
         />

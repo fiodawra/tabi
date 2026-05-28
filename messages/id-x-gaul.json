@@ -44,6 +44,8 @@
     "calendarSelector": {
       "ariaLabel": "Pilih kalender",
       "placeholder": "Pilih kalender",
+      "ownGroup": "Kalender punya lo",
+      "sharedGroup": "Kalender sharing",
       "shared": "Kalender sharing",
       "owner": "Owner",
       "current": "Lagi lihat sebagai {access}"
@@ -141,6 +143,28 @@
       "edit": "Edit",
       "delete": "Hapus",
       "empty": "Bikin kategori buat kasih warna ke item itinerary.",
+      "colors": {
+        "slate": "Slate",
+        "zinc": "Zinc",
+        "stone": "Stone",
+        "red": "Merah",
+        "orange": "Oranye",
+        "amber": "Amber",
+        "yellow": "Kuning",
+        "lime": "Lime",
+        "green": "Hijau",
+        "emerald": "Emerald",
+        "teal": "Teal",
+        "cyan": "Cyan",
+        "sky": "Langit",
+        "blue": "Biru",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "purple": "Ungu",
+        "fuchsia": "Fuchsia",
+        "pink": "Pink",
+        "rose": "Rose"
+      },
       "errors": {
         "category-color-required": "Pilih warna kategori dulu.",
         "category-name-required": "Isi nama kategori dulu.",

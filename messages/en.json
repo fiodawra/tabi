@@ -48,6 +48,8 @@
     "calendarSelector": {
       "ariaLabel": "Choose calendar",
       "placeholder": "Choose calendar",
+      "ownGroup": "Own calendar",
+      "sharedGroup": "Shared calendar",
       "shared": "Shared calendar",
       "owner": "Owner",
       "current": "Viewing as {access}"
@@ -141,6 +143,28 @@
       "edit": "Edit",
       "delete": "Delete",
       "empty": "Create a category to color-code itinerary items.",
+      "colors": {
+        "slate": "Slate",
+        "zinc": "Zinc",
+        "stone": "Stone",
+        "red": "Red",
+        "orange": "Orange",
+        "amber": "Amber",
+        "yellow": "Yellow",
+        "lime": "Lime",
+        "green": "Green",
+        "emerald": "Emerald",
+        "teal": "Teal",
+        "cyan": "Cyan",
+        "sky": "Sky",
+        "blue": "Blue",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "purple": "Purple",
+        "fuchsia": "Fuchsia",
+        "pink": "Pink",
+        "rose": "Rose"
+      },
       "errors": {
         "category-color-required": "Choose a category color.",
         "category-name-required": "Enter a category name.",
