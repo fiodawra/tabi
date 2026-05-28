@@ -38,10 +38,7 @@ import {
   localizer,
   TIMESLOTS_BY_STEP,
 } from "./itinerary-constants";
-import {
-  ItineraryItemsEmptyState,
-  NoCalendarEmptyState,
-} from "./itinerary-empty-state";
+import { NoCalendarEmptyState } from "./itinerary-empty-state";
 import { ItineraryItemDialog } from "./itinerary-item-dialog";
 import { ItineraryRealtimeAlert } from "./itinerary-realtime-alert";
 import { getCalendarExpansionRange } from "./itinerary-recurrence";
@@ -669,18 +666,6 @@ export function ItineraryCalendar() {
           <Skeleton className="h-9 w-full max-w-md" />
           <Skeleton className="min-h-0 flex-1" />
         </div>
-      ) : null}
-
-      {hasActiveCalendars &&
-      !isItineraryLoading &&
-      events.length === 0 &&
-      itineraryItems.length > 0 ? (
-        <ItineraryItemsEmptyState
-          canCreate={canEditSelectedCalendar}
-          hasItems
-          onCreate={openCreateDialog}
-          t={t}
-        />
       ) : null}
 
       {hasActiveCalendars ? (

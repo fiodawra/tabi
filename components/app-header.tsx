@@ -8,7 +8,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 
 export function AppHeader() {
   return (
-    <header className="flex h-12 justify-between items-center gap-3 p-4">
+    <header className="flex h-12 justify-between items-center gap-3 p-4 bg-sidebar">
       <Link href="/">
         <h1 className="text-lg font-bold text-foreground">Tabi</h1>
       </Link>

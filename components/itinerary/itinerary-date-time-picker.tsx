@@ -32,6 +32,15 @@ type ItineraryDateTimePickerProps = {
   value: Date;
 };
 
+type ItineraryDatePickerProps = {
+  disabled?: boolean;
+  id: string;
+  label: string;
+  locale: AppLocale;
+  onChange: (date: Date) => void;
+  value: Date;
+};
+
 const DATE_LOCALES = {
   en: enUS,
   id: idLocale,
@@ -147,6 +156,49 @@ export function ItineraryDateTimePicker({
         </Select>
       </div>
       {description ? <FieldDescription>{description}</FieldDescription> : null}
+    </div>
+  );
+}
+
+export function ItineraryDatePicker({
+  disabled = false,
+  id,
+  label,
+  locale,
+  onChange,
+  value,
+}: ItineraryDatePickerProps) {
+  const dateLocale = DATE_LOCALES[locale];
+
+  return (
+    <div className="flex flex-col gap-2">
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            className="w-full justify-start"
+            disabled={disabled}
+            id={id}
+            type="button"
+            variant="outline"
+          >
+            <CalendarIcon data-icon="inline-start" />
+            {format(value, "PPP", { locale: dateLocale })}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-auto p-0">
+          <Calendar
+            locale={dateLocale}
+            mode="single"
+            onSelect={(nextDate) => {
+              if (nextDate) {
+                onChange(setDatePart(value, nextDate));
+              }
+            }}
+            selected={value}
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarPlusIcon, PlusIcon, Share2Icon, TagsIcon } from "lucide-react";
+import { CalendarPlusIcon, CogIcon, PlusIcon, Share2Icon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -85,7 +85,10 @@ export function ItinerarySidebar({
 
   function renderCalendarItem(calendar: CalendarSummary) {
     return (
-      <SelectItem key={calendar.id} value={calendar.id}>
+      <SelectItem
+        key={calendar.id}
+        value={calendar.id}
+      >
         <span className="flex min-w-0 items-center gap-2">
           <span className="truncate">{getCalendarLabel(calendar, t)}</span>
           <Badge variant="secondary">
@@ -99,7 +102,10 @@ export function ItinerarySidebar({
   }
 
   return (
-    <Sidebar className="border-r" collapsible="offcanvas">
+    <Sidebar
+      className="border-r"
+      collapsible="offcanvas"
+    >
       <SidebarHeader className="border-b p-3">
         <div className="flex min-w-0 items-center gap-2">
           <Select
@@ -193,7 +199,7 @@ export function ItinerarySidebar({
                   onClick={onOpenCategoryManager}
                   title={t("categoryManager.open")}
                 >
-                  <TagsIcon />
+                  <CogIcon className="text-muted-foreground/80" />
                 </SidebarGroupAction>
               ) : null}
               <SidebarGroupContent className="px-2 py-1">

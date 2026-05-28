@@ -2,7 +2,10 @@
 
 import { MapPinIcon, Trash2Icon } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import { ItineraryDateTimePicker } from "@/components/itinerary/itinerary-date-time-picker";
+import {
+  ItineraryDatePicker,
+  ItineraryDateTimePicker,
+} from "@/components/itinerary/itinerary-date-time-picker";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -43,11 +46,9 @@ import type {
 import { UNCATEGORIZED_VALUE } from "./itinerary-constants";
 import {
   CUSTOM_RECURRENCE_FREQUENCIES,
-  formatDateKey,
   getDefaultCustomRecurrence,
   getRecurrenceForPreset,
   getRecurrencePreset,
-  parseDateKey,
   RECURRENCE_PRESETS,
   WEEKDAYS,
 } from "./itinerary-recurrence";
@@ -504,23 +505,21 @@ export function ItineraryItemDialog({
                       </Field>
                       {customRecurrence.end.mode === "onDate" ? (
                         <Field>
-                          <FieldLabel htmlFor="itinerary-repeat-until">
-                            {t("recurrence.untilDate")}
-                          </FieldLabel>
-                          <Input
+                          <ItineraryDatePicker
                             disabled={!canEdit}
                             id="itinerary-repeat-until"
-                            onChange={(event) =>
+                            label={t("recurrence.untilDate")}
+                            locale={locale}
+                            onChange={(date) =>
                               updateCustomRecurrence((current) => ({
                                 ...current,
                                 end: {
-                                  date: parseDateKey(event.target.value),
+                                  date,
                                   mode: "onDate",
                                 },
                               }))
                             }
-                            type="date"
-                            value={formatDateKey(customRecurrence.end.date)}
+                            value={customRecurrence.end.date}
                           />
                         </Field>
                       ) : null}
